@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Core.ViewModel
 {
-    public class Roles
+    public class DDLVM
     {
-            public string? Id { get; set; }
-            public string? Name { get; set; }
+        public int ID { get; set; }
+        public string? Name { get; set; }
     }
 }

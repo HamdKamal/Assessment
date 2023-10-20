@@ -15,7 +15,7 @@ namespace Assessment.Controllers
     {
         private readonly DatabaseDbContext db = new DatabaseDbContext();
         public string  GV_UserID { get; set; }
-        public UserInfo UserInfo { get; set; }
+        public UserInfoVM UserInfo { get; set; }
         List<Guid?> Roles = new List<Guid?>();
        
         public BaseController()
@@ -29,7 +29,7 @@ namespace Assessment.Controllers
             {
                 if (GV_UserID == null)
                 {
-                    UserInfo = new UserInfo();
+                    UserInfo = new UserInfoVM();
                     var userid = GetUserId(User);
                     GV_UserID = userid;
                     var user = db.Users.Find(userid);

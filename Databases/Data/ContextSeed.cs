@@ -56,7 +56,7 @@ namespace Databases.Data
                 EmailConfirmed = false,
                 PhoneNumberConfirmed = true,
                 FullName = "الأدمن",
-                PhoneNumber = "966569065085",
+                PhoneNumber = "00966569065085",
                 NormalizedUserName = "MANAGER",
             };
 

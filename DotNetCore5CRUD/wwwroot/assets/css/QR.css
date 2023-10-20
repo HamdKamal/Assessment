@@ -1,0 +1,92 @@
+﻿/* view in fullscreen for best look */
+
+
+
+.barcodediv img {
+    width: 250px;
+    height: 250px;
+    margin-top: 15px;
+    display: inline-block !important;
+    border-radius: 10px;
+}
+
+#outputBorder {
+    height: 280px;
+    width: 280px;
+    /* border: 1px solid black; */
+    margin: auto;
+    background-color: #ffffff;
+    border-radius: 25px;
+    box-shadow: 0 0 5px rgba(0,0,0, 0.2);
+}
+
+
+
+
+#QR_Input {
+    height: 20px;
+    position: relative;
+    border: 2px solid #cdcdcd;
+    border-color: rgba(0, 0, 0, .14);
+    background-color: AliceBlue;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+
+
+.fadeInLeft {
+    -webkit-animation-name: fadeInLeft;
+    animation-name: fadeInLeft;
+}
+
+
+#QR_Input {
+    height: 20px;
+    position: relative;
+    border: 2px solid #cdcdcd;
+    border-color: rgba(0, 0, 0, .14);
+    background-color: AliceBlue;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+#QR_Input {
+    width: 85%;
+}
+
+
+#submitButton {
+    margin-right: 25px;
+}
+
+.buttons {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+
+
+@-webkit-keyframes fadeInLeft {
+    0% {
+        opacity: 0;
+        -webkit-transform: translate(-70%, -50%);
+    }
+
+    100% {
+        opacity: 1;
+        -webkit-transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes fadeInLeft {
+    0% {
+        opacity: 0;
+        transform: translate(-70%, -50%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}

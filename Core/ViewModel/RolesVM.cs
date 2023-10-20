@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Core.ViewModel
 {
-    public class DropDownList
+    public class RolesVM
     {
-        public int ID { get; set; }
-        public string? Name { get; set; }
+            public string? Id { get; set; }
+            public string? Name { get; set; }
     }
 }

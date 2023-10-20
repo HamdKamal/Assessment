@@ -1,0 +1,214 @@
+﻿@model LoginVM
+@{
+    Layout = null;
+}
+<html class="loading" lang="en" data-textdirection="ltr">
+<head>
+    <style>
+        img.logo {
+            padding-left: 8px;
+            margin-top: 30px;
+            width: 40% !important;
+        }
+
+        .brand-logo {
+            padding-left: 134px;
+            margin-top: 30px;
+            width: 40% !important;
+        }
+        #log-in {
+            margin-top: 70px;
+            color: #333;
+            padding: 0 15px;
+        }
+
+            #log-in * {
+                /*box-sizing: border-box;*/
+            }
+
+            #log-in .login-heading {
+                font-size: 36px;
+                line-height: 1.5;
+                font-weight: bold;
+                margin: 10px 0;
+                text-align: center;
+            }
+
+            #log-in .login-copy {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            #log-in .login-form {
+                margin: 60px auto;
+                display: block;
+                padding: 20px 30px 30px 30px;
+                max-width: 480px;
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 0 1px rgba(0, 0, 0, 0.1);
+            }
+
+                #log-in .login-form .field-container {
+                    position: relative;
+                    display: block;
+                    margin: 10px 0;
+                    height: 54px;
+                    width: 100%;
+                    background: white;
+                    border: #f0f;
+                    border-radius: 3px;
+                }
+
+                    #log-in .login-form .field-container.-focused label {
+                        font-size: 11px;
+                        line-height: 12px;
+                        color: #888;
+                        bottom: auto;
+                        top: 8px;
+                        font-weight: bold;
+                    }
+
+                    #log-in .login-form .field-container.-focused input {
+                        line-height: 62px;
+                    }
+
+                #log-in .login-form label {
+                    position: absolute;
+                    top: 0;
+                    right: 10px;
+                    bottom: 0;
+                    left: 10px;
+                    z-index: 1;
+                    line-height: 54px;
+                    display: block;
+                    color: #666;
+                    font-size: 16px;
+                    transition: font-size 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), line-height 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), font-weight 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), top 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), bottom 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+                }
+
+                #log-in .login-form input {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    z-index: 2;
+                    display: block;
+                    background: transparent;
+                    line-height: 54px;
+                    padding: 0 10px;
+                    font-size: 16px;
+                    border: none;
+                    color: #333;
+                    border-radius: 3px;
+                    border: 1px solid transparent;
+                    transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+                }
+
+                    #log-in .login-form input:focus, #log-in .login-form input:active {
+                        outline: none;
+                        border-color: #ededed;
+                    }
+
+                #log-in .login-form button {
+                    display: block;
+                    margin: 30px 0;
+                    height: 54px;
+                    width: 100%;
+                    background: #088b42;
+                    border: 1px solid #3c7;
+                    border-top-color: transparent;
+                    border-radius: 16px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #fff;
+                    text-shadow: -1px -1px rgba(0, 0, 0, 0.1);
+                    transition: background 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+                }
+
+                    #log-in .login-form button:hover {
+                        background: #5cd692;
+                        cursor: pointer;
+                    }
+
+                #log-in .login-form .create-account-link {
+                    color: #085DA9;
+                    font-size: 14px;
+                    display: block;
+                    text-align: center;
+                    text-decoration: none;
+                    transition: color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+                }
+
+                    #log-in .login-form .create-account-link:hover {
+                        color: #0094CC;
+                    }
+
+        h1 {
+            line-height: 1.2;
+            color: #5E5873;
+            text-align: right;
+        }
+
+        p {
+            font: menu;
+            text-align: left;
+            font-size: larger;
+            font-weight: bolder;
+        }
+
+        .bg {
+            /* The image used */
+            background-image: url('/assets/img/background.jpg') !important;
+            /* Full height */
+            height: 100%;
+            /* Center and scale the image nicely */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .hidden-visually {
+            position: absolute;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+        }
+    </style>
+</head> 
+<body class="bg">
+    <div id="log-in">
+        <form asp-action="Index" asp class="login-form mt-2" asp-controller="Login"  method="POST">
+            <a class="brand-logo" href="#">
+                <img src="/assets/img/logo.png" class="logo">
+            </a>
+            <p class="p">  Application Assessment - Test </p>
+
+            <br />
+
+            <div class="field-container -username">
+                <label for="first-name" class="hidden-visually" style="text-align: right; cursor: pointer;display: block;" id="user"></label>
+                <input style="border: 3px solid #79b4ec;" type="text" class="form-control" name="UserName" asp-for="Username" aria-describedby="login-email" tabindex="1" autofocus placeholder="UserName" />
+            </div>
+
+            <div class="mb-1">
+                <div class="field-container -password">
+                    <label class="form-label" for="login-password" style="text-align: right;" id="pass"></label>
+                    <input type="password" class="form-control" name="password" asp-for="Password" aria-describedby="login-email" tabindex="1" placeholder="Password" style="margin-top: 17px;border: 3px solid #79b4ec; height: inherit;" />
+                </div>
+                <div>
+                <br />
+                </div>
+            </div>
+            <div class="mb-1">
+                <P class="text-center text-danger mt-2" style="text-align: center;font:menu;color: darkcyan;font-weight: bolder;font-size: revert;"> @(Model?.Message)</P>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" tabindex="4" style="font:menu;font-size: larger;font-weight: bold;">Login</button>
+        </form>
+    </div>
+</body>
+</html>
