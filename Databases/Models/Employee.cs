@@ -34,6 +34,8 @@ namespace Databases.Models
         [ForeignKey("DepartmentID")]
         public Department? Department { get; set; }
 
+        public bool IsDelete { get; set; } = false;
+
         public required string CreatedBy { get; set; } 
         [ForeignKey("CreatedBy")]
         public Users? Users { get; set; }
