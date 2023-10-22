@@ -21,7 +21,7 @@ namespace Assessment.Areas.Employee.Controllers
         private readonly DatabaseDbContext _db;
         private readonly IToastNotification _toastNotification;
         private readonly IEmployee _employee;
-        private new List<string> _allowedExtenstions = new List<string> { ".jpg", ".png" };
+        //private new List<string> _allowedExtenstions = new List<string> { ".jpg", ".png" };
 
         public EmployeeController(DatabaseDbContext dbContext,IToastNotification toast,IEmployee employee) 
         {
@@ -34,6 +34,11 @@ namespace Assessment.Areas.Employee.Controllers
         {
             return View(await _employee.GetAll());
         }
+        public IActionResult Create()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> Delete(Guid id)
         {
             var Result = await _employee.Delete(id);

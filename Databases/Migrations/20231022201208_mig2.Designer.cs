@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Databases.Migrations
 {
     [DbContext(typeof(DatabaseDbContext))]
-    [Migration("20231020214107_mig2")]
+    [Migration("20231022201208_mig2")]
     partial class mig2
     {
         /// <inheritdoc />
@@ -35,18 +35,15 @@ namespace Databases.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("DepartmentID")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Image")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<bool>("IsDelete")
@@ -56,12 +53,10 @@ namespace Databases.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -343,9 +338,7 @@ namespace Databases.Migrations
                 {
                     b.HasOne("Databases.Models.Security.Users", "Users")
                         .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CreatedBy");
 
                     b.HasOne("Databases.Models.Security.Department", "Department")
                         .WithMany()

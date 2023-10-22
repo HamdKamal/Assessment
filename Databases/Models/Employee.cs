@@ -1,5 +1,4 @@
 ﻿using Databases.Models.Security;
-using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,22 +9,22 @@ namespace Databases.Models
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
 
-        [Required, MaxLength(250)]
+        [MaxLength(250)]
         [Display(Name = "Enter Employee FullName")]
-        public required string Name { get; set; }
+        public string? Name { get; set; }
 
-        [Required,DataType(DataType.EmailAddress)]
+        [DataType(DataType.EmailAddress)]
         [RegularExpression("^[a-zA-Z0-9_\\.-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$", ErrorMessage = "E-mail is not valid")]
         [Display(Name = "Enter Email Address")]
-        public required string Email {  get; set; }
+        public string? Email {  get; set; }
 
-        [Required,MaxLength(50)]
+        [MaxLength(50)]
         [DataType(DataType.PhoneNumber)]
         [Display(Name = "Enter Employee Phone Number")]
-        public required string Phone { get; set; }
+        public string? Phone { get; set; }
 
         [Display(Name = "Please select a image smaller than 5MB")]
-        public byte[] Image { get; set; }
+        public string? Image { get; set; }
 
         public bool IsStillWorking { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -36,7 +35,7 @@ namespace Databases.Models
 
         public bool IsDelete { get; set; } = false;
 
-        public required string CreatedBy { get; set; } 
+        public string? CreatedBy { get; set; } 
         [ForeignKey("CreatedBy")]
         public Users? Users { get; set; }
     }

@@ -46,7 +46,7 @@ namespace Databases.Data
             modelBuilder.Entity<IdentityRoleClaim<string>>(entity => { entity.ToTable("sys_RoleClaims"); });
 
 
-            //modelBuilder.Entity<Branch>().Ignore(x => x.CreateBy);
+            //modelBuilder.Entity<Employee>().Ignore(x => x.Image);
 
 
 

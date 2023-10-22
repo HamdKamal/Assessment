@@ -35,10 +35,10 @@ namespace Core.Repository
                     _dbContext.Employees.Add(
                         new Employee
                         {
-                            Name = obj.EmployeeName ?? "",
-                            Phone = obj.Phone ?? "",
-                            Email = obj.Email ?? "",
-                            Image = obj.Image ?? _dataStream.ToArray(),
+                            Name = obj.EmployeeName,
+                            Phone = obj.Phone,
+                            Email = obj.Email,
+                            Image = obj.Image,
                             DepartmentID = obj.DepartmentID,
                             CreatedBy = userInfo.UserID.ToString(),
                         });
@@ -55,10 +55,9 @@ namespace Core.Repository
 
         public async Task<ResponseVM> Delete(Guid Id)
         {
-            var obj = await _dbContext.Employees.Where(a=> a.ID == Id).SingleOrDefaultAsync();
-
             try
             {
+                var obj = await _dbContext.Employees.Where(a=> a.ID == Id).SingleOrDefaultAsync();
                 if (obj != null)
                 {
                    obj.IsDelete = true;
@@ -83,11 +82,11 @@ namespace Core.Repository
                 {
                     try
                     {
-                        edit.Name = obj.EmployeeName ?? "";
-                        edit.Phone = obj.Phone ?? "";
-                        edit.Email = obj.Email ?? "";
+                        edit.Name = obj.EmployeeName;
+                        edit.Phone = obj.Phone;
+                        edit.Email = obj.Email;
                         edit.IsStillWorking = obj.IsStill;
-                        edit.Image = obj.Image ?? _dataStream.ToArray();
+                        edit.Image = obj.Image;
                         edit.DepartmentID = obj.DepartmentID;
 
                         await _dbContext.SaveChangesAsync();
@@ -106,7 +105,7 @@ namespace Core.Repository
         {
             try
             {
-                return await _dbContext.Employees.Select(a => new EmployeeVM
+                return await _dbContext.Employees.Where(e=> e.IsDelete != true).Select(a => new EmployeeVM
                     {
                       EmployeeID = a.ID,
                         EmployeeName = a.Name,
@@ -133,21 +132,23 @@ namespace Core.Repository
             {
                 try
                 {
-                    return await _dbContext.Employees.Where(s => s.ID == Id)
-                        .Select(a => new EmployeeVM
-                        {
-                            EmployeeID = a.ID,
-                            EmployeeName = a.Name?? "",
-                            DepartmentID = a.DepartmentID,
-                            DepartmentName = a.Department != null ? a.Department.NameEn : "",
-                            Phone = a.Phone.Remove(0, 5) ?? "",
-                            Email = a.Email ?? "",
-                            CreatedAt = a.CreatedAt,
-                            CreatedByID = a.CreatedBy,
-                            CreatedBy = a.Users != null ? a.Users.FullName : "",
-                            IsStillWorking = a.IsStillWorking == true ? "Still Working" : "Not Working",
-                            Color = a.IsStillWorking == true ? "green" : "red",
-                        }).SingleOrDefaultAsync();
+                    var a = await _dbContext.Employees.FindAsync(Id);
+
+                    return new EmployeeVM
+                    {
+                        EmployeeID = a.ID,
+                        EmployeeName = a.Name,
+                        DepartmentID = a.DepartmentID,
+                        DepartmentName = a.Department != null ? a.Department.NameEn : "",
+                        Phone = a.Phone.Remove(0, 5),
+                        Email = a.Email,
+                        CreatedAt = a.CreatedAt,
+                        CreatedByID = a.CreatedBy,
+                        CreatedBy = a.Users != null ? a.Users.FullName : "",
+                        IsStillWorking = a.IsStillWorking == true ? "Still Working" : "Not Working",
+                        Color = a.IsStillWorking == true ? "green" : "red",
+                    };
+                        
                 }
                 catch (Exception)
                 {

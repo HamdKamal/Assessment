@@ -31,32 +31,36 @@ namespace Assessment.Controllers
                 {
                     UserInfo = new UserInfoVM();
                     var userid = GetUserId(User);
+                    var userlist = db.users.ToList();
                     GV_UserID = userid;
-                    var user = db.Users.Find(userid);
+                    var user = db.users.Find(userid);
 
                     UserInfo.UserID   = Guid.Parse(GV_UserID);
-                    UserInfo.UserName   = user.FullName;
+                    UserInfo.UserName   =  user != null ? user.FullName : "";
 
-                    var obj =  (from Urole in db.UserRoles
-                                join Role in db.ColumnRoles on Urole.RoleId equals Role.Id
-                                where Urole.UserId == user.Id
-                    select new
-                    { 
-                        Urole.RoleId,
-                        Role.NameAr  
-                    }).ToList();
-
-                    foreach(var Role in obj) 
+                    if (user != null)
                     {
-                        Guid? ID = Guid.Parse(Role.RoleId);
-                        Roles.Add(ID);
+                        var obj = (from Urole in db.UserRoles
+                                   join Role in db.ColumnRoles on Urole.RoleId equals Role.Id
+                                   where Urole.UserId == user.Id
+                                   select new
+                                   {
+                                       Urole.RoleId,
+                                       Role.NameAr
+                                   }).ToList();
+
+                        foreach (var Role in obj)
+                        {
+                            Guid? ID = Guid.Parse(Role.RoleId);
+                            Roles.Add(ID);
+                        }
+
+                        UserInfo.UserRoles = Roles;
+
+                        var RoleID = db.UserRoles.Where(u => u.UserId == user.Id).FirstOrDefault().RoleId;
+                        UserInfo.RoleName = db.Roles.Find(RoleID).Name;
+                        UserInfo.RoleID = Guid.Parse(RoleID);
                     }
-
-                    UserInfo.UserRoles = Roles;
-
-                    var RoleID = db.UserRoles.Where(u=> u.UserId == user.Id).FirstOrDefault().RoleId;
-                    UserInfo.RoleName = db.Roles.Find(RoleID).Name;
-                    UserInfo.RoleID = Guid.Parse(RoleID);
                 }
             }
         }
