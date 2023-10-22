@@ -25,7 +25,7 @@ namespace Databases.Models
         public required string Phone { get; set; }
 
         [Display(Name = "Please select a image smaller than 5MB")]
-        public required byte[] Image { get; set; }
+        public byte[] Image { get; set; }
 
         public bool IsStillWorking { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.Now;

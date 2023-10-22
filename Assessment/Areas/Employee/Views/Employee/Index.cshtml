@@ -82,9 +82,7 @@
                                 <td style="font-size: large;color:@item.Color;font-weight: bold">
                                     @Html.DisplayFor(modelItem => item.IsStillWorking)
                                 </td>
-                                 <td>
-                                    <a href="@Url.Action("CloseDetails", new { id = item.EmployeeID })" class="btn btn btn-info">Show</a>
-                                   
+                                 <td>                                   
                                     <a asp-action="Details" asp-route-id="@item.EmployeeID" class="btn btn-outline-secondary">
                                         <i class="bi bi-camera-reels"></i>
                                         Details

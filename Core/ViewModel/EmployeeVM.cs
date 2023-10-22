@@ -21,7 +21,7 @@ namespace Core.ViewModel
 
         public byte[]? Image { get; set; }
 
-        public bool IsStillWorking { get; set; } 
+        public string? IsStillWorking { get; set; } 
 
         public DateTime CreatedAt { get; set; } 
 
@@ -30,6 +30,7 @@ namespace Core.ViewModel
         public string? DepartmentName { get; set; }
 
         public bool IsDelete { get; set; } 
+        public bool IsStill { get; set; } 
 
         public string? CreatedByID { get; set; }
 

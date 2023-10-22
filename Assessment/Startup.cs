@@ -1,3 +1,5 @@
+using Core.Interfaces;
+using Core.Repository;
 using Databases.Data;
 using Databases.Models.Security;
 using Microsoft.AspNetCore.Builder;
@@ -63,7 +65,8 @@ namespace Assessment
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddControllersWithViews();
 
-            //services.AddScoped<IMunicipal, MunicipalRepo>();
+            // inject Interfaces as services
+            services.AddScoped<IEmployee,EmployeeRepo>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

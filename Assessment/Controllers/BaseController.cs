@@ -35,7 +35,7 @@ namespace Assessment.Controllers
                     var user = db.Users.Find(userid);
 
                     UserInfo.UserID   = Guid.Parse(GV_UserID);
-                    UserInfo.UserName   = user.UserName;
+                    UserInfo.UserName   = user.FullName;
 
                     var obj =  (from Urole in db.UserRoles
                                 join Role in db.ColumnRoles on Urole.RoleId equals Role.Id
