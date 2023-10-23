@@ -57,7 +57,7 @@ namespace Core.Repository
         {
             try
             {
-                var obj = await _dbContext.Employees.Where(a=> a.ID == Id).SingleOrDefaultAsync();
+                var obj = await _dbContext.Employees.FindAsync(Id);
                 if (obj != null)
                 {
                    obj.IsDelete = true;

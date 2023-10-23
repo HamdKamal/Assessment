@@ -44,11 +44,11 @@ namespace Assessment.Areas.Employee.Controllers
             var Result = await _employee.Delete(id);
             if (Result.Status)
             {
-                return RedirectToAction("Index", "Employee", new { area = "Employee" });
+                return Json(new { data = "1" });
             }
             else
             {
-                return RedirectToAction("Index", "Employee", new { area = "Employee" });
+                return Json(new { data = "-1" });
             }
         }
     }
