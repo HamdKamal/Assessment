@@ -51,9 +51,9 @@
                         {
                           <tr style="font-size: 12px;font-weight: bold;">
                                  <td>
-                                    @Index
-                                </td> 
-                                <td>
+                            @Html.DisplayFor(modelItem => item.RefID)
+                        </td>
+                        <td>
                                     @Html.DisplayFor(modelItem => item.EmployeeName)
                                 </td>
                                 <td>
@@ -66,7 +66,7 @@
                                     @Html.DisplayFor(modelItem => item.Email)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                            @Html.DisplayFor(modelItem => item.RegisterDate)
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.CreatedBy)
@@ -78,7 +78,7 @@
                                 <a asp-action="Details" asp-route-id="@item.EmployeeID" class="btn btn-outline-secondary" title="Details">
                                     <i class="bi bi-camera-reels"></i>
                                 </a>
-                                <a asp-action="Edit" asp-route-id="@item.EmployeeID" class="btn btn-outline-primary" title="Edit">
+                                <a asp-action="Create" asp-route-id="@item.EmployeeID" class="btn btn-outline-primary" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <a href="javascript:;" class="btn btn-danger js-delete" data-id="@item.EmployeeID" title="Delete">
@@ -96,42 +96,7 @@
 </div>
 
 @section Scripts {
-@*     <script>
-        $(document).ready(function () {
-            $('.js-delete').on('click', function () {
-                var btn = $(this);
-                // Swal.fire({
-                //     title: 'Are you sure that you need to delete this Employee ?',
-                //     // input: 'text',
-                //     // inputPlaceholder: 'Enter JSON data',
-                //     showCancelButton: true,
-                //     confirmButtonText: 'Ok',
-                // }).then((result) => {
-                //     if (result.isConfirmed) {
-                        debugger;
 
-                        $.ajax({
-                            type: "get",
-                            url: '/Employee/Employee/delete/' + btn.data('id'),
-                            contentType: "application/json",
-                            dataType: "json",
-                            success: function (response) {
-                                let data = response.data;
-                                if (data != -1) {
-                                    toastr.success('Employees deleted');
-                                    window.location.href = '@Url.Action("Index", "Employee")';
-                                }
-                                else {
-                                    toastr.error('Something went wrong!');
-                                }
-                            }
-                        });
-                  //  }
-                //});
-            });
-        });
-    </script>
- *@
     <script>
         $(document).ready(function () {
             $('.js-delete').on('click', function () {

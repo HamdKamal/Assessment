@@ -9,6 +9,8 @@ namespace Databases.Models
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
 
+        public string? RefID { get; set; }
+
         [MaxLength(250)]
         [Display(Name = "Enter Employee FullName")]
         public string? Name { get; set; }
@@ -24,7 +26,7 @@ namespace Databases.Models
         public string? Phone { get; set; }
 
         [Display(Name = "Please select a image smaller than 5MB")]
-        public string? Image { get; set; }
+        public byte[]? Image { get; set; }
 
         public bool IsStillWorking { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.Now;

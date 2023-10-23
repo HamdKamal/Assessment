@@ -15,5 +15,6 @@ namespace Core.Interfaces
         Task<ResponseVM> Delete(Guid Id);
         Task<List<EmployeeVM>> GetAll();
         Task<EmployeeVM> GetByID(Guid Id);
+        string GetRefrence();
     }
 }

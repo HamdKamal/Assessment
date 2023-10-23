@@ -35,15 +35,16 @@ namespace Core.Repository
                     _dbContext.Employees.Add(
                         new Employee
                         {
+                            RefID = GetRefrence(),
                             Name = obj.EmployeeName,
-                            Phone = obj.Phone,
+                            Phone = "00966" + obj.Phone,
                             Email = obj.Email,
                             Image = obj.Image,
                             DepartmentID = obj.DepartmentID,
                             CreatedBy = userInfo.UserID.ToString(),
                         });
                     await _dbContext.SaveChangesAsync();
-                    return new ResponseVM { Status = true };
+                    return new ResponseVM { Status = true , Msg = "Add" };
                 }
                 catch (Exception)
                 {
@@ -83,18 +84,18 @@ namespace Core.Repository
                     try
                     {
                         edit.Name = obj.EmployeeName;
-                        edit.Phone = obj.Phone;
+                        edit.Phone = "00966" + obj.Phone;
                         edit.Email = obj.Email;
                         edit.IsStillWorking = obj.IsStill;
                         edit.Image = obj.Image;
                         edit.DepartmentID = obj.DepartmentID;
 
                         await _dbContext.SaveChangesAsync();
-                        return new ResponseVM { Status = true };
+                        return new ResponseVM { Status = true , Msg = "Edit"};
                     }
                     catch (Exception)
                     {
-                        return new ResponseVM { Status = false, Msg = "Exption" };
+                        return new ResponseVM { Status = false, Msg = "Exption"};
                     }
                 }
             }
@@ -107,13 +108,15 @@ namespace Core.Repository
             {
                 return await _dbContext.Employees.Where(e=> e.IsDelete != true).Select(a => new EmployeeVM
                     {
-                      EmployeeID = a.ID,
+                        EmployeeID = a.ID,
+                        RefID = a.RefID,
                         EmployeeName = a.Name,
                         DepartmentID = a.DepartmentID,
                         DepartmentName = a.Department != null ? a.Department.NameEn : "",
                         Phone = a.Phone.Remove(0, 5),
                         Email = a.Email,
                         CreatedAt = a.CreatedAt,
+                        RegisterDate = a.CreatedAt.ToShortDateString(),
                         CreatedByID = a.CreatedBy,
                         CreatedBy = a.Users != null ? a.Users.FullName : "",
                         IsStillWorking = a.IsStillWorking == true ? "Still Working" : "Not Working",
@@ -137,14 +140,18 @@ namespace Core.Repository
                     return new EmployeeVM
                     {
                         EmployeeID = a.ID,
+                        RefID = a.RefID,
                         EmployeeName = a.Name,
                         DepartmentID = a.DepartmentID,
                         DepartmentName = a.Department != null ? a.Department.NameEn : "",
                         Phone = a.Phone.Remove(0, 5),
                         Email = a.Email,
+                        Image = a.Image,
                         CreatedAt = a.CreatedAt,
+                        RegisterDate = a.CreatedAt.ToShortDateString(),
                         CreatedByID = a.CreatedBy,
                         CreatedBy = a.Users != null ? a.Users.FullName : "",
+                        IsStill = a.IsStillWorking,
                         IsStillWorking = a.IsStillWorking == true ? "Still Working" : "Not Working",
                         Color = a.IsStillWorking == true ? "green" : "red",
                     };
@@ -156,6 +163,22 @@ namespace Core.Repository
                 }
             }
             return new EmployeeVM();
+        }
+
+        public string GetRefrence()
+        {
+            string RefID;
+            var GetCount = _dbContext.Employees.ToList();
+            if (GetCount.Count == 0)
+            {
+                RefID = "Emp-001";
+            }
+            else
+            {
+                var _NewCount = GetCount.Count + 1;
+                RefID = "Emp-00" + _NewCount;
+            }
+            return RefID;
         }
     }
 }

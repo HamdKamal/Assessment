@@ -55,13 +55,13 @@ namespace Databases.Data
              {
                  ID = new Guid("98d053d0-ab0d-4510-ac10-32d29189a301"),
                  NameAr = "إدارة شؤون الموظفين",
-                 NameEn = "Human Resource Department"
+                 NameEn = "HR Department"
              },
              new Department
              {
                 ID = new Guid("98d053d0-ab0d-4510-ac10-32d29189a302"),
                  NameAr = "الإدارة المالية",
-                 NameEn = "financial Management Department "
+                 NameEn = "financial Department "
              });
         }
     }

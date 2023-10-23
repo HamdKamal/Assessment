@@ -13,17 +13,20 @@ namespace Core.ViewModel
     {
 
         public Guid EmployeeID { get; set; }
+        public string? RefID { get; set; }
+
         public string? EmployeeName { get; set; }
 
         public string? Email { get; set; }
 
         public string? Phone { get; set; }
 
-        public string? Image { get; set; }
+        public byte[]? Image { get; set; }
 
         public string? IsStillWorking { get; set; } 
 
         public DateTime CreatedAt { get; set; } 
+        public string RegisterDate { get; set; } 
 
         public Guid? DepartmentID { get; set; }
 
@@ -36,5 +39,7 @@ namespace Core.ViewModel
 
         public string? CreatedBy { get; set; }
         public string? Color { get; set; }
+        public IEnumerable<Department>? Departments { get; set; }
+
     }
 }

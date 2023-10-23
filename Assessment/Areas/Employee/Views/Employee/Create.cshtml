@@ -1,0 +1,107 @@
+﻿@model EmployeeVM
+
+@{
+    ViewData["Title"] = "Employee Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<style>
+    .form-check-input{
+        margin-left: 0.75rem;
+    }
+
+    .custom-file-input {
+        opacity:5;
+    }
+</style>
+<h2>@(Model.EmployeeID != Guid.Empty ? "Edit" : "Create") Employee</h2>
+
+<hr />
+
+<section class="row justify-content-between">
+    <div class="col-md-4">
+        <form id="Myform" method="POST" asp-action="Create" enctype="multipart/form-data">
+            <input type="hidden" asp-for="EmployeeID" />
+            <div class="form-group">
+                <label class="text-muted" asp-for="EmployeeID">ID</label>
+                <input type="text" class="form-control" asp-for="RefID" maxlength="250" readonly />
+            </div>
+            <div class="form-group">
+                <label class="text-muted" asp-for="EmployeeName">Employee Name</label>
+                <input type="text" class="form-control" asp-for="EmployeeName" maxlength="250" />
+                <span asp-validation-for="EmployeeName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="text-muted" asp-for="Phone">Phone</label>
+                <input type="text" class="form-control" asp-for="Phone" maxlength="250" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="text-muted" asp-for="Email">Email</label>
+                <input type="text" class="form-control" asp-for="Email" maxlength="250" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="text-muted" asp-for="DepartmentID">Department</label>
+                <select class="form-control" asp-for="DepartmentID" asp-items="@(new SelectList(Model.Departments, "ID", "NameEn"))">
+                    <option value="98d053d0-ab0d-4510-ac10-32d29189a302">.. Select From List ..</option>
+                </select>
+                <span asp-validation-for="DepartmentID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="text-muted" asp-for="IsStill">Is Employee Still Working ?</label>
+                <input asp-for="IsStill" type="checkbox" class="form-check-input" />
+            </div>
+
+            <div class="custom-file">
+                <label class="text-muted" asp-for="Image">Employee Image</label>
+                <input type="file" class="custom-file-input" asp-for="Image" accept=".png, .jpg" id="fileInput" />
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-4" onclick="checkFileInput()">
+                <i class="bi bi-check"></i>
+                @(Model.EmployeeID != Guid.Empty ? "Edit" : "Save")
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary mt-4">
+                <i class="bi bi-x"></i>
+                Cancel
+            </a>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div id="poster-container" class="@(Model.EmployeeID != Guid.Empty ? string.Empty : "d-none")">
+            <img src="@(Model.EmployeeID != Guid.Empty ? $"data:image/*;base64,{Convert.ToBase64String(Model.Image)}" : string.Empty)" alt="Employee Image" class="img-thumbnail" />
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('#Image').on('change', function () {
+                var selectedFile = $(this).val().split('\\').pop();
+                $(this).siblings('label').text(selectedFile);
+
+                var posterContainer = $('#poster-container');
+                var image = window.URL.createObjectURL(this.files[0]);
+
+                posterContainer.removeClass('d-none');
+                posterContainer.find('img').attr('src', image);
+            });
+        });
+    </script>
+    <script>
+        function checkFileInput() {
+            var fileInput = document.getElementById('fileInput');
+
+            if (fileInput.files.length === 0) {
+                alert("Something went wrong!");
+            }
+        }
+    </script>
+}
