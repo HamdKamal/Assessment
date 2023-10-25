@@ -32,26 +32,27 @@ namespace Core.Repository
             {
                 try
                 {
-                    _dbContext.Employees.Add(
-                        new Employee
-                        {
-                            RefID = GetRefrence(),
-                            Name = obj.EmployeeName,
-                            Phone = "00966" + obj.Phone,
-                            Email = obj.Email,
-                            Image = obj.Image,
-                            DepartmentID = obj.DepartmentID,
-                            CreatedBy = userInfo.UserID.ToString(),
-                        });
+                    var _Object = new Employee
+                    {
+                        RefID = GetRefrence(),
+                        Name = obj.EmployeeName,
+                        Phone = "00966" + obj.Phone,
+                        Email = obj.Email,
+                        Image = obj.Image,
+                        DepartmentID = obj.DepartmentID,
+                        CreatedBy = userInfo.UserID.ToString()
+                    };
+
+                    await _dbContext.Employees.AddAsync(_Object);
                     await _dbContext.SaveChangesAsync();
-                    return new ResponseVM { Status = true , Msg = "Add" };
+                    return new ResponseVM { Status = true , Msg = "Add",ResultData = _Object };
                 }
                 catch (Exception)
                 {
                     return new ResponseVM { Status = false, Msg = "Exption" };
                 }
             }
-            return new ResponseVM { Status = false, Msg = "Model must be not null!" };
+            return new ResponseVM { Status = false, Msg = "Model must be not null!", ResultData = obj };
         }
 
         public async Task<ResponseVM> Delete(Guid Id)
@@ -63,7 +64,7 @@ namespace Core.Repository
                 {
                    obj.IsDelete = true;
                    await _dbContext.SaveChangesAsync();
-                   return new ResponseVM { Status = true, Msg = "Delete Seccsfully" };
+                   return new ResponseVM { Status = true, Msg = "Delete Seccsfully",ResultData = obj };
                 }
             }
             catch (Exception)
@@ -91,7 +92,7 @@ namespace Core.Repository
                         edit.DepartmentID = obj.DepartmentID;
 
                         await _dbContext.SaveChangesAsync();
-                        return new ResponseVM { Status = true , Msg = "Edit"};
+                        return new ResponseVM { Status = true , Msg = "Edit", ResultData = edit };
                     }
                     catch (Exception)
                     {
@@ -99,14 +100,15 @@ namespace Core.Repository
                     }
                 }
             }
-            return new ResponseVM { Status = false, Msg = "Model must be not null!" };
+            return new ResponseVM { Status = false, Msg = "Model must be not null!", ResultData = obj };
         }
 
         public async Task<List<EmployeeVM>> GetAll()
         {
             try
             {
-                return await _dbContext.Employees.Where(e=> e.IsDelete != true).Select(a => new EmployeeVM
+                return await _dbContext.Employees.Where(e=> e.IsDelete != true).OrderBy(e => e.RefID)
+                    .Select(a => new EmployeeVM
                     {
                         EmployeeID = a.ID,
                         RefID = a.RefID,
@@ -115,6 +117,7 @@ namespace Core.Repository
                         DepartmentName = a.Department != null ? a.Department.NameEn : "",
                         Phone = a.Phone.Remove(0, 5),
                         Email = a.Email,
+                        Image = a.Image,
                         CreatedAt = a.CreatedAt,
                         RegisterDate = a.CreatedAt.ToShortDateString(),
                         CreatedByID = a.CreatedBy,
@@ -135,9 +138,7 @@ namespace Core.Repository
             {
                 try
                 {
-                    var a = await _dbContext.Employees.FindAsync(Id);
-
-                    return new EmployeeVM
+                    var Obj = await _dbContext.Employees.Where(e => e.IsDelete != true && e.ID == Id).Select(a => new EmployeeVM
                     {
                         EmployeeID = a.ID,
                         RefID = a.RefID,
@@ -154,8 +155,8 @@ namespace Core.Repository
                         IsStill = a.IsStillWorking,
                         IsStillWorking = a.IsStillWorking == true ? "Still Working" : "Not Working",
                         Color = a.IsStillWorking == true ? "green" : "red",
-                    };
-                        
+                    }).SingleOrDefaultAsync();
+                    return Obj;
                 }
                 catch (Exception)
                 {

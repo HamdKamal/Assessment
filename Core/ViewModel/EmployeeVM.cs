@@ -26,7 +26,7 @@ namespace Core.ViewModel
         public string? IsStillWorking { get; set; } 
 
         public DateTime CreatedAt { get; set; } 
-        public string RegisterDate { get; set; } 
+        public string? RegisterDate { get; set; } 
 
         public Guid? DepartmentID { get; set; }
 
