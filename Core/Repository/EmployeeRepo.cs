@@ -60,9 +60,14 @@ namespace Core.Repository
             try
             {
                 var obj = await _dbContext.Employees.FindAsync(Id);
+                
                 if (obj != null)
                 {
-                   obj.IsDelete = true;
+                    if (obj.IsDelete == true)
+                    {
+                        return new ResponseVM { Status = false, Msg = "Employee Deleted Before!" };
+                    }
+                    obj.IsDelete = true;
                    await _dbContext.SaveChangesAsync();
                    return new ResponseVM { Status = true, Msg = "Delete Seccsfully",ResultData = obj };
                 }
@@ -99,8 +104,12 @@ namespace Core.Repository
                         return new ResponseVM { Status = false, Msg = "Exption"};
                     }
                 }
+                else
+                {
+                    return new ResponseVM { Status = false, Msg = "Employee Id Not Found!" };
+                }
             }
-            return new ResponseVM { Status = false, Msg = "Model must be not null!", ResultData = obj };
+            return new ResponseVM { Status = false, Msg = "Model must not be null!"};
         }
 
         public async Task<List<EmployeeVM>> GetAll()
