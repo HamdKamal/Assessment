@@ -1,6 +1,6 @@
 # Assessment Project
 
-* This project desinged in .net Freamwork. I develop an application for a Employee entity on which I perform Create, Read, Update and soft Delete operations. To keep the Project simple and easy I used the repository pattern.
+* This project desinged in .net Freamwork. I develop an application for a Employee entity on which I perform Create, Read, Update and soft Delete operations. To keep the Project simple and easy to change and Refactoring I used the repository pattern.
 
 - Design Solution with Clean Architecture in .NET 7 
 - Implementing Repository Pattern and Entity Framework with Clean Architecture
