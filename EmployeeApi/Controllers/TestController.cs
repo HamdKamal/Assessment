@@ -1,22 +1,40 @@
-﻿using Core.Interfaces;
+﻿using Azure;
+using Core.Interfaces;
 using Core.ViewModel;
-using Databases.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeApi.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/[controller]")]
     [ApiController]
     public class TestController : ControllerBase
     {
-        private readonly DatabaseDbContext _db;
         private readonly IEmployee _employee;
+        private readonly IAuth _auth;
 
-        public TestController(DatabaseDbContext context,IEmployee employee) 
+        public TestController(IEmployee employee,IAuth auth) 
         { 
-          _db = context;
           _employee = employee;
+          _auth = auth;
         }
+
+        [AllowAnonymous] 
+        [HttpPost("token")]
+        public async Task<TokenVM> GetTokenAsync(LoginVM model)
+        {
+            var result = await _auth.GetTokenAsync(model);
+            return new TokenVM 
+            {
+                UserID = result.UserID,
+                UserName = result.UserName,
+                Message = result.Message,
+                IsAuthenticated = result.IsAuthenticated,
+                Token = result.Token,
+            };
+        }
+
 
         [HttpGet]
         public async Task<List<EmployeeVM>> GetEmployeeList()

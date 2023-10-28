@@ -29,7 +29,7 @@ namespace EmployeeApi
               options.UseSqlServer(
                   Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<Users, IdentityRole>(config =>
+            services.AddIdentity<Users, ColumnRole>(config =>
             {
                 config.Password.RequiredLength = 6;
                 config.Password.RequireDigit = false;
@@ -48,20 +48,19 @@ namespace EmployeeApi
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Issuer"],
-                    ValidAudience = Configuration["AudienceId"],
-                    IssuerSigningKey = new
-                    SymmetricSecurityKey
-                    (Encoding.UTF8.GetBytes
-                    (Configuration["AudienceSecret"]))
+                    ValidIssuer = "Test-Api", 
+                    ValidAudience = "Test-Api",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("C1CF4B7DC4C4175B6618DE4F55CA4KI"))
                 };
             });
 
             services.AddMvc();
             services.AddControllersWithViews();
             services.AddControllersWithViews();
-            services.AddScoped<IEmployee, EmployeeRepo>();
 
+
+            services.AddScoped<IEmployee, EmployeeRepo>();
+            services.AddScoped<IAuth,AuthRepo>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddControllers();

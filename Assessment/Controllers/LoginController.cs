@@ -17,7 +17,13 @@ namespace Assessment.Controllers
             _signInManager = signInManager;
             _userManager = userManager;
         }
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
 
+            return RedirectToAction("Index", "Login");
+
+        }
         // GET: LoginController
         public  IActionResult Index()
         {
