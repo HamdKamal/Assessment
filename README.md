@@ -4,9 +4,9 @@
 
 - Design Solution with Clean Architecture in .NET 7 
 - Implementing Repository Pattern and Entity Framework with Clean Architecture
-- Asp.net Core prenciple was Implement in this Project [dependancy Injection]
+- Asp.net Core prenciple was Implement in this Project
 - Configuring dependency injection for Application project
-- Code first Migration , dbcontext builder in Sql Server Clint.
+- Code first Migration , dbcontext builder to Sql Server Clint.
   
 # run a project 
 - go to appsetting.json file on Assessment & EmployeeApi Projects
