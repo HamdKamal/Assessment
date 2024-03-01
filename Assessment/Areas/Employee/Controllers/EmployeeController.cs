@@ -23,7 +23,7 @@ namespace Assessment.Areas.Employee.Controllers
         private readonly DatabaseDbContext _db;
         private readonly IToastNotification _toastNotification;
         private readonly IEmployee _employee;
-        private new List<string> _allowedExtenstions = new List<string> { ".jpg", ".png" };
+        private List<string> _allowedExtenstions = new List<string> { ".jpg", ".png" };
         private long _maxAllowedPosterSize = 1048576;
 
         public EmployeeController(DatabaseDbContext dbContext,IToastNotification toast,IEmployee employee) 

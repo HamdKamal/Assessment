@@ -28,7 +28,7 @@ namespace Databases.Data
             if (!option.IsConfigured)
             {
                 
-                option.UseSqlServer("Data Source = MO-KAMAL; Initial Catalog = AssessmentDB; Integrated Security = True; MultipleActiveResultSets=True;TrustServerCertificate=True");
+                option.UseSqlServer("Data Source = Mo-Kamal\\SQLEXPRESS; Initial Catalog = AssessmentDB; Integrated Security = True; MultipleActiveResultSets=True;TrustServerCertificate=True");
             }
             option.EnableSensitiveDataLogging();
         }
