@@ -39,6 +39,7 @@ namespace Core.ViewModel
 
         public string? CreatedBy { get; set; }
         public string? Color { get; set; }
+        public string? Localizer { get; set; }
         public IEnumerable<Department>? Departments { get; set; }
 
     }

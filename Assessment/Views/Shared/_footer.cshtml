@@ -1,0 +1,47 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = c.NativeName })
+        .ToList();
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+}
+<nav>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - Assessment - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <ul >
+                <li>
+                    <div>
+                        <form id="selectLanguage" asp-controller="Home" asp-area=""
+                              asp-action="SetLanguage" asp-route-returnUrl="@returnUrl"
+                              method="post" class="form-horizontal" role="form">
+                            <input type="hidden" name="culture" id="cultureID" />
+                            @foreach (var item in cultureItems)
+                            {
+                                <a href="#" onclick="ChangeLang('@item.Value')" data-language="en">
+                                    <i></i> @item.Text
+                                </a>
+                            }
+                        </form>
+                        <script>
+                            function ChangeLang(value) {
+
+                                document.getElementById('cultureID').value = value;
+                                document.getElementById('selectLanguage').submit();
+                            }
+                        </script>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+    </footer>
+</nav>

@@ -16,5 +16,6 @@ namespace Core.ViewModel
         public string? Token { get; set; }
         public bool IsAuthenticated { get; set; }
         public string? Message { get; set; }
+        public string? Lang { get; set; }
     }
 }

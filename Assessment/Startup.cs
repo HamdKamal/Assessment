@@ -1,17 +1,24 @@
 using Core.Interfaces;
 using Core.Repository;
+using Localization.Interfaces;
+using Localization.Repositorys;
 using Databases.Data;
 using Databases.Models.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using NToastNotify;
+using Microsoft.AspNetCore.Localization;
+using System.Collections.Generic;
+using System.Globalization;
 
 
 namespace Assessment
@@ -65,9 +72,42 @@ namespace Assessment
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddControllersWithViews();
 
+            //Start Localiztion 
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddMvc(options => options.EnableEndpointRouting = false)
+                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization();
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+
+            CultureInfo[] supportedCultures = new[]
+            {
+            new CultureInfo("ar"),
+            new CultureInfo("en")
+            };
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture("ar");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+                options.RequestCultureProviders = new List<IRequestCultureProvider>
+                {
+                    new QueryStringRequestCultureProvider(),
+                    new CookieRequestCultureProvider()
+                };
+
+            });
+            //End Localiztion 
+
             // inject Interfaces as services
             services.AddScoped<IEmployee,EmployeeRepo>();
             services.AddScoped<IAuth,AuthRepo>();
+            services.AddScoped<ILocalizedService, LocalizedServiceRepo>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

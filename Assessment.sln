@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Databases", "Databases\Databases.csproj", "{3D04C1DF-F88A-4941-8008-9ED9088D0601}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeApi", "EmployeeApi\EmployeeApi.csproj", "{A54E1EB3-D693-42C8-9BFE-4B8ABEC066B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeApi", "EmployeeApi\EmployeeApi.csproj", "{A54E1EB3-D693-42C8-9BFE-4B8ABEC066B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Localization", "Localization\Localization.csproj", "{537BC1B3-ADFB-4330-BF32-954D26068254}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A54E1EB3-D693-42C8-9BFE-4B8ABEC066B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A54E1EB3-D693-42C8-9BFE-4B8ABEC066B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A54E1EB3-D693-42C8-9BFE-4B8ABEC066B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{537BC1B3-ADFB-4330-BF32-954D26068254}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{537BC1B3-ADFB-4330-BF32-954D26068254}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{537BC1B3-ADFB-4330-BF32-954D26068254}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{537BC1B3-ADFB-4330-BF32-954D26068254}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

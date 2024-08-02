@@ -112,11 +112,11 @@ namespace Core.Repository
             return new ResponseVM { Status = false, Msg = "Model must not be null!"};
         }
 
-        public async Task<List<EmployeeVM>> GetAll()
+        public async Task<List<EmployeeVM>> GetAll(string lang)
         {
             try
             {
-                return await _dbContext.Employees.Where(e=> e.IsDelete != true).OrderBy(e => e.RefID)
+                return await _dbContext.Employees.Where(e => e.IsDelete != true).OrderBy(e => e.RefID)
                     .Select(a => new EmployeeVM
                     {
                         EmployeeID = a.ID,
@@ -133,6 +133,7 @@ namespace Core.Repository
                         CreatedBy = a.Users != null ? a.Users.FullName : "",
                         IsStillWorking = a.IsStillWorking == true ? "Still Working" : "Not Working",
                         Color = a.IsStillWorking == true ? "green" : "red",
+                        Localizer = lang.Equals("ar") ? "ar" : "en",
                     }).ToListAsync();
             }
             catch (Exception)

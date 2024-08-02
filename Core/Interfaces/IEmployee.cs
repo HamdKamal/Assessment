@@ -13,7 +13,7 @@ namespace Core.Interfaces
         Task<ResponseVM> Add(EmployeeVM obj, UserInfoVM userInfo);
         Task<ResponseVM> Edit(EmployeeVM obj, UserInfoVM userInfo);
         Task<ResponseVM> Delete(Guid Id);
-        Task<List<EmployeeVM>> GetAll();
+        Task<List<EmployeeVM>> GetAll(string lang);
         Task<EmployeeVM> GetByID(Guid Id);
         string GetRefrence();
     }

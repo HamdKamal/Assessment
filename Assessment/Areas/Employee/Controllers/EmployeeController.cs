@@ -2,6 +2,7 @@
 using Core.Interfaces;
 using Core.ViewModel;
 using Databases.Data;
+using Localization.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -26,16 +27,22 @@ namespace Assessment.Areas.Employee.Controllers
         private List<string> _allowedExtenstions = new List<string> { ".jpg", ".png" };
         private long _maxAllowedPosterSize = 1048576;
 
-        public EmployeeController(DatabaseDbContext dbContext,IToastNotification toast,IEmployee employee) 
+        private readonly ILocalizedService _myLocalizedService;
+
+        public EmployeeController(DatabaseDbContext dbContext,IToastNotification toast,IEmployee employee, ILocalizedService myLocalizedService) 
         {
             _db = dbContext;
             _toastNotification = toast;
             _employee = employee;
+            _myLocalizedService = myLocalizedService;
         }
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            return View(await _employee.GetAll());
+            string message = _myLocalizedService.GetLocalizedMessage();
+            var _Object = await _employee.GetAll(GV_Lang);
+            _Object.ForEach(a => a.Localizer = message);
+            return View(_Object);
         }
         [Authorize]
         public async Task<IActionResult> Create(Guid? id)

@@ -17,19 +17,25 @@ namespace Assessment.Controllers
         public string  GV_UserID { get; set; }
         public UserInfoVM UserInfo { get; set; }
         List<Guid?> Roles = new List<Guid?>();
-       
+
+        public string GV_Lang
+        {
+            get; set;
+        }
         public BaseController()
         {
         }
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             base.OnActionExecuting(filterContext);
-           
+            GV_Lang = HttpContext.Features.Get<IRequestCultureFeature>().RequestCulture.Culture.Name;
+
             if (User.Identity.IsAuthenticated)
             {
                 if (GV_UserID == null)
                 {
                     UserInfo = new UserInfoVM();
+                    UserInfo.Lang = GV_Lang;
                     var userid = GetUserId(User);
                     var userlist = db.users.ToList();
                     GV_UserID = userid;
