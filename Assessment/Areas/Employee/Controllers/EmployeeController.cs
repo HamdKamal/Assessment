@@ -26,7 +26,6 @@ namespace Assessment.Areas.Employee.Controllers
         private readonly IEmployee _employee;
         private List<string> _allowedExtenstions = new List<string> { ".jpg", ".png" };
         private long _maxAllowedPosterSize = 1048576;
-
         private readonly ILocalizedService _myLocalizedService;
 
         public EmployeeController(DatabaseDbContext dbContext,IToastNotification toast,IEmployee employee, ILocalizedService myLocalizedService) 
@@ -48,8 +47,15 @@ namespace Assessment.Areas.Employee.Controllers
         public async Task<IActionResult> Create(Guid? id)
         {
             var Result = await _employee.GetByID(id ?? new Guid()) ?? new EmployeeVM { EmployeeID = Guid.Empty };
-            Result.RefID = _employee.GetRefrence();
-            Result.Departments = await _db.Departments.OrderBy(m => m.ID).ToListAsync();
+            if (id != Guid.Empty)
+            {
+                Result.Departments = await _db.Departments.OrderBy(m => m.ID).ToListAsync();
+            }
+            else 
+            {
+                Result.RefID = _employee.GetRefrence();
+                Result.Departments = await _db.Departments.OrderBy(m => m.ID).ToListAsync();
+            }
             return View(Result);
         }
         [Authorize]

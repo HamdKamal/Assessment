@@ -28,7 +28,7 @@ namespace Databases.Data
             if (!option.IsConfigured)
             {
                 
-                option.UseSqlServer("Data Source = .\\SQLEXPRESS; Initial Catalog = AssessmentDB; Integrated Security = True; MultipleActiveResultSets=True;TrustServerCertificate=True");
+                option.UseSqlServer("Data Source = MOKAMAL\\SQLEXPRESS02; Initial Catalog = AssessmentDB; Integrated Security = True; MultipleActiveResultSets=True;TrustServerCertificate=True");
             }
             option.EnableSensitiveDataLogging();
         }
