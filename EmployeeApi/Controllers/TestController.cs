@@ -39,7 +39,7 @@ namespace EmployeeApi.Controllers
         [HttpGet]
         public async Task<List<EmployeeVM>> GetEmployeeList()
         {
-            var result = await _employee.GetAll();
+            var result = await _employee.GetAll("ar");
             return result;
         }
         [HttpGet,Route("/Test/{Emp_id}")]
