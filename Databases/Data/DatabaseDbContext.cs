@@ -1,4 +1,5 @@
 ﻿using Databases.Models;
+using Databases.Models.Databases.Models;
 using Databases.Models.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -20,6 +21,11 @@ namespace Databases.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<ColumnRole> ColumnRoles { get; set; }
+
+
+        public DbSet<TBL_Primary> Primaries => Set<TBL_Primary>();
+        public DbSet<Section> Sections => Set<Section>();
+        public DbSet<Fields> Fields => Set<Fields>();
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder option)

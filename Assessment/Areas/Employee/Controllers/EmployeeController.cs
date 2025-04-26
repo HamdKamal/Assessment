@@ -5,7 +5,6 @@ using Databases.Data;
 using Localization.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NToastNotify;
 using System;
@@ -28,7 +27,7 @@ namespace Assessment.Areas.Employee.Controllers
         private long _maxAllowedPosterSize = 1048576;
         private readonly ILocalizedService _myLocalizedService;
 
-        public EmployeeController(DatabaseDbContext dbContext,IToastNotification toast,IEmployee employee, ILocalizedService myLocalizedService) 
+        public EmployeeController(DatabaseDbContext dbContext, IToastNotification toast, IEmployee employee, ILocalizedService myLocalizedService)
         {
             _db = dbContext;
             _toastNotification = toast;
@@ -51,7 +50,7 @@ namespace Assessment.Areas.Employee.Controllers
             {
                 Result.Departments = await _db.Departments.OrderBy(m => m.ID).ToListAsync();
             }
-            else 
+            else
             {
                 Result.RefID = _employee.GetRefrence();
                 Result.Departments = await _db.Departments.OrderBy(m => m.ID).ToListAsync();
@@ -62,7 +61,7 @@ namespace Assessment.Areas.Employee.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeVM _EmpObject)
         {
-            
+
             if (_EmpObject != null)
             {
                 var files = Request.Form.Files;
@@ -94,10 +93,10 @@ namespace Assessment.Areas.Employee.Controllers
                 await poster.CopyToAsync(dataStream);
                 _EmpObject.Image = dataStream.ToArray();
 
-                var Result = _EmpObject.EmployeeID == Guid.Empty ? await _employee.Add(_EmpObject, UserInfo) : await _employee.Edit(_EmpObject, UserInfo); 
+                var Result = _EmpObject.EmployeeID == Guid.Empty ? await _employee.Add(_EmpObject, UserInfo) : await _employee.Edit(_EmpObject, UserInfo);
                 if (Result.Status)
                 {
-                    if(Result.Msg == "Add")
+                    if (Result.Msg == "Add")
                     {
                         _toastNotification.AddSuccessToastMessage("Employee Created successfully");
                     }
@@ -138,5 +137,6 @@ namespace Assessment.Areas.Employee.Controllers
             var Result = await _employee.GetByID(id);
             return View(Result);
         }
+
     }
 }

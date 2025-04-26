@@ -10,6 +10,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using System;
+using Core.Services;
+using System.Text.Json.Serialization;
 
 namespace EmployeeApi
 {
@@ -25,11 +28,10 @@ namespace EmployeeApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DatabaseDbContext>(options =>
-              options.UseSqlServer(
-                  Configuration.GetConnectionString("DefaultConnection")));
+           services.AddDbContext<DatabaseDbContext>(options =>
+           options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));           
 
-            services.AddIdentity<Users, ColumnRole>(config =>
+           services.AddIdentity<Users, ColumnRole>(config =>
             {
                 config.Password.RequiredLength = 6;
                 config.Password.RequireDigit = false;
@@ -37,8 +39,8 @@ namespace EmployeeApi
                 config.Password.RequireUppercase = false;
                 config.Password.RequireLowercase = false;
             })
-          .AddEntityFrameworkStores<DatabaseDbContext>()
-          .AddDefaultTokenProviders();
+           .AddEntityFrameworkStores<DatabaseDbContext>()
+           .AddDefaultTokenProviders();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
@@ -54,13 +56,21 @@ namespace EmployeeApi
                 };
             });
 
+            services.AddControllers()
+    .AddJsonOptions(x =>
+        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
             services.AddMvc();
             services.AddControllersWithViews();
             services.AddControllersWithViews();
 
-
             services.AddScoped<IEmployee, EmployeeRepo>();
             services.AddScoped<IAuth,AuthRepo>();
+
+            // Repositories
+            services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+            // Services
+            services.AddScoped<SeedingService>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddControllers();

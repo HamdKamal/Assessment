@@ -1,0 +1,284 @@
+﻿{
+  "organizationId": 1,
+  "regionName": "الرياض",
+  "roleName": "admin",
+  "createBy": "مدير هيئة المياه",
+  "createDate": "2025-04-25T12:00:00",
+  "isApproval": false,
+  "sections": [
+    {
+      "id": "production",
+      "title": "الإنتاج",
+      "isOpen": true,
+      "isComplete": false,
+      "fields": [
+        {
+          "id": "seawater_capacity",
+          "label": "القدرة الأنتاجية لمحطات التحلية (مياه البحر)",
+          "unit": "مليون م³/يوم",
+          "value": "2.5",
+          "baselineValue": "2.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "3.0",
+          "targetDate": "2025-01-01",
+          "changePercentage": "25"
+        },
+        {
+          "id": "groundwater_capacity",
+          "label": "القدرة الانتاجية لمحطات التحلية (مياه جوفية)",
+          "unit": "مليون م³/يوم",
+          "value": "1.8",
+          "baselineValue": "1.6",
+          "baselineDate": "2023-01-01",
+          "targetValue": "2.2",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "tech_units_capacity",
+          "label": "القدرة الانتاجية لوحدات التقنية",
+          "unit": "مليون م³/يوم",
+          "value": "1.2",
+          "baselineValue": "1.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "1.5",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "total_production_capacity",
+          "label": "القدرة الإنتاجية الإجمالية",
+          "unit": "مليون م³/يوم",
+          "value": "5.5",
+          "baselineValue": "4.6",
+          "baselineDate": "2023-01-01",
+          "targetValue": "6.7",
+          "targetDate": "2025-01-01"
+        }
+      ]
+    },
+    {
+      "id": "transport",
+      "title": "النقل",
+      "isOpen": false,
+      "isComplete": false,
+      "fields": [
+        {
+          "id": "transport_capacity",
+          "label": "سعات انظمة نقل المياه",
+          "unit": "مليون م³/يوم",
+          "value": "4.0",
+          "baselineValue": "3.5",
+          "baselineDate": "2023-01-01",
+          "targetValue": "5.0",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "transport_length",
+          "label": "اطوال خطوط نقل المياه",
+          "unit": "ألف كم",
+          "value": "1500",
+          "baselineValue": "1400",
+          "baselineDate": "2023-01-01",
+          "targetValue": "1600",
+          "targetDate": "2025-01-01",
+          "changePercentage": "7.14"
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "title": "الخزن الاستراتيجي",
+      "isOpen": false,
+      "isComplete": false,
+      "fields": [
+        {
+          "id": "storage_capacity",
+          "label": "سعات الخزن الاستراتيجي",
+          "unit": "مليون م³",
+          "value": "10.0",
+          "baselineValue": "8.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "12.0",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "storage_days",
+          "label": "عدد ايام الخزن الاستراتيجي",
+          "unit": "يوم",
+          "value": "30",
+          "baselineValue": "25",
+          "baselineDate": "2023-01-01",
+          "targetValue": "35",
+          "targetDate": "2025-01-01",
+          "changePercentage": "14.29"
+        }
+      ]
+    },
+    {
+      "id": "distribution",
+      "title": "التوزيع",
+      "isOpen": false,
+      "isComplete": false,
+      "fields": [
+        {
+          "id": "water_network_coverage",
+          "label": "نسبة التغطية بشبكات المياه",
+          "unit": "%",
+          "value": "95",
+          "baselineValue": "90",
+          "baselineDate": "2023-01-01",
+          "targetValue": "98",
+          "targetDate": "2025-01-01",
+          "changePercentage": "8.89"
+        },
+        {
+          "id": "water_network_length",
+          "label": "اطوال شبكات المياه",
+          "unit": "ألف كم",
+          "value": "3000",
+          "baselineValue": "2800",
+          "baselineDate": "2023-01-01",
+          "targetValue": "3200",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "connected_units",
+          "label": "الوحدات العقارية المتصلة بالشبكات",
+          "unit": "مليون وحدة",
+          "value": "15.0",
+          "baselineValue": "13.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "17.0",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "water_connections",
+          "label": "عدد توصيلات شبكات المياه",
+          "unit": "مليون توصيلة",
+          "value": "18.0",
+          "baselineValue": "16.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "20.0",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "metered_connections",
+          "label": "عدد توصيلات شبكات المياه (مركب عليها عداد)",
+          "unit": "توصيلة",
+          "value": "14.0",
+          "baselineValue": "12.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "16.0",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "pumping_continuity",
+          "label": "معدل استمرارية الضخ للمياه",
+          "unit": "ساعة/يوم",
+          "value": "24",
+          "baselineValue": "22",
+          "baselineDate": "2023-01-01",
+          "targetValue": "24",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "water_loss_percentage",
+          "label": "نسبة الفاقد في المياه",
+          "unit": "%",
+          "value": "10",
+          "baselineValue": "12",
+          "baselineDate": "2023-01-01",
+          "targetValue": "8",
+          "targetDate": "2025-01-01"
+        }
+      ]
+    },
+    {
+      "id": "sewage",
+      "title": "الصرف الصحي والمعالجة",
+      "isOpen": false,
+      "isComplete": false,
+      "fields": [
+        {
+          "id": "sewage_network_coverage",
+          "label": "نسبة التغطية بشبكات الصرف الصحي",
+          "unit": "%",
+          "value": "90",
+          "baselineValue": "85",
+          "baselineDate": "2023-01-01",
+          "targetValue": "95",
+          "targetDate": "2025-01-01",
+          "changePercentage": "5.88"
+        },
+        {
+          "id": "sewage_network_length",
+          "label": "اطوال شبكات الصرف الصحي",
+          "unit": "ألف كم",
+          "value": "1200",
+          "baselineValue": "1100",
+          "baselineDate": "2023-01-01",
+          "targetValue": "1300",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "sewage_connections",
+          "label": "عدد توصيلات شبكات الصرف الصحي",
+          "unit": "مليون توصيلة",
+          "value": "8.0",
+          "baselineValue": "7.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "9.0",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "treatment_plants_count",
+          "label": "عدد محطات المعالجة",
+          "unit": "محطة",
+          "value": "15",
+          "baselineValue": "12",
+          "baselineDate": "2023-01-01",
+          "targetValue": "18",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "treatment_capacity",
+          "label": "قدرات محطات المعالجة",
+          "unit": "مليون م³/يوم",
+          "value": "6.5",
+          "baselineValue": "5.0",
+          "baselineDate": "2023-01-01",
+          "targetValue": "8.0",
+          "targetDate": "2025-01-01",
+          "changePercentage": "23.08"
+        }
+      ]
+    },
+    {
+      "id": "reuse",
+      "title": "إعادة الاستخدام",
+      "isOpen": false,
+      "isComplete": false,
+      "fields": [
+        {
+          "id": "reuse_percentage",
+          "label": "نسبة اعادة استخدام المياه المعالجة المجددة",
+          "unit": "%",
+          "value": "25",
+          "baselineValue": "20",
+          "baselineDate": "2023-01-01",
+          "targetValue": "30",
+          "targetDate": "2025-01-01"
+        },
+        {
+          "id": "reuse_quantity",
+          "label": "كميات اعادة استخدام المياه المعالجة المجددة",
+          "unit": "مليون م³/يوم",
+          "value": "0.5",
+          "baselineValue": "0.4",
+          "baselineDate": "2023-01-01",
+          "targetValue": "0.7",
+          "targetDate": "2025-01-01"
+        }
+      ]
+    }
+  ]
+}
