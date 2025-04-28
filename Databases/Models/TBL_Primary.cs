@@ -30,6 +30,9 @@ namespace Databases.Models
             public string? Title { get; set; }
             public bool? IsOpen { get; set; }
             public bool? IsComplete { get; set; }
+            public string? Base64 { get; set; }
+            public string? FileName { get; set; }
+            public string? Filetype { get; set; }
 
             public int? TBL_PrimaryId { get; set; }
             [ForeignKey("TBL_PrimaryId")]
@@ -57,6 +60,7 @@ namespace Databases.Models
             [ForeignKey("SectionRef_ID")]
             public Section? Section { get; set; }
         }
-    }
 
+
+    }
 }

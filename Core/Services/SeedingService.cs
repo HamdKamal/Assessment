@@ -1,13 +1,6 @@
 ﻿using Core.Interfaces;
-using Core.Repository;
 using Core.ViewModel;
 using Databases.Models.Databases.Models;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Services
 {
@@ -30,12 +23,19 @@ namespace Core.Services
                 RegionName = primaryData.RegionName,
                 RoleName = primaryData.RoleName,
                 CreateBy = primaryData.CreateBy,
-                CreateDate =  DateTime.Now,
+                CreateDate = DateTime.Now,
                 IsApproval = primaryData.IsApproval,
                 Sections = primaryData.Sections?.Select(s => new Section
                 {
                     Id = s.Id,
                     Title = s.Title,
+                    IsComplete = s.IsComplete,
+                    IsOpen = s.IsOpen,
+
+                    Base64 = s.Base64,
+                    Filetype = s.Filetype,
+                    FileName = s.FileName,
+
                     Fields = s.Fields?.Select(f => new Fields
                     {
                         Id = f.Id,
@@ -51,7 +51,7 @@ namespace Core.Services
                 }).ToList()
             };
 
-            await _primaryRepo.AddAsync(primary);
+            await _primaryRepo.AddAsync(primaryData);
             await _primaryRepo.SaveAsync();
         }
         public async Task<IEnumerable<TBLPrimaryDto>> GetAllAsync()
@@ -62,7 +62,7 @@ namespace Core.Services
         public async Task<TBL_Primary?> GetByIdAsync(object id)
         {
             return await _primaryRepo.GetByIdAsync(id);
-        }       
+        }
 
         public void Update(TBL_Primary entity)
         {

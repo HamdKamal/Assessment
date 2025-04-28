@@ -22,41 +22,6 @@ namespace Core.Repository
             _dbSet = context.Set<T>();
         }
 
-        //public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
-        //public async Task<IEnumerable<TBLPrimaryDto>> GetAllAsync() => await _context.Primaries
-        //        .Include(static p => p.Sections)
-        //        .ThenInclude(s => s.Fields)
-        //        .Select(static p => new TBLPrimaryDto
-        //        {
-        //            Ref_Id = p.Ref_Id,
-        //            OrgenaztionId = p.OrgenaztionId,
-        //            RegionName = p.RegionName,
-        //            RoleName = p.RoleName,
-        //            CreateBy = p.CreateBy,
-        //            CreateDate = p.CreateDate,
-        //            IsApproval = p.IsApproval,
-        //            Sections = p.Sections.Select(static s => new SectionDto
-        //            {
-        //                Ref_ID = s.Ref_ID,
-        //                Id = s.Id,
-        //                Title = s.Title,
-        //                IsOpen = s.IsOpen,
-        //                IsComplete = s.IsComplete,
-        //                Fields = s.Fields.Select(f => new FieldDto
-        //                {
-        //                    Ref_ID = f.Ref_ID,
-        //                    Label = f.Label,
-        //                    Unit = f.Unit,
-        //                    Value = f.Value,
-        //                    BaselineValue = f.BaselineValue,
-        //                    BaselineDate = f.BaselineDate,
-        //                    TargetValue = f.TargetValue,
-        //                    TargetDate = f.TargetDate,
-        //                    ChangePercentage = f.ChangePercentage
-        //                }).ToList()
-        //            }).ToList()
-        //        })
-        //        .ToListAsync();
         public async Task<IEnumerable<TBLPrimaryDto>> GetAllAsync()
         {
 
@@ -70,6 +35,7 @@ namespace Core.Repository
 
         public async Task<T?> GetByIdAsync(object id) => await _dbSet.FindAsync(id);
         public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
+           
         public void Update(T entity) => _dbSet.Update(entity);
         public void Delete(T entity) => _dbSet.Remove(entity);
         public async Task SaveAsync() => await _context.SaveChangesAsync();

@@ -8,6 +8,7 @@ namespace Core.ViewModel
 {
     public class FieldDto
     {
+        public string? Id { get; set; }
         public int Ref_ID { get; set; }
         public string? Label { get; set; }
         public string? Unit { get; set; }
@@ -26,7 +27,9 @@ namespace Core.ViewModel
         public string? Title { get; set; }
         public bool? IsOpen { get; set; }
         public bool? IsComplete { get; set; }
-
+        public string? Base64 { get; set; }
+        public string? FileName { get; set; }
+        public string? Filetype { get; set; }
         public List<FieldDto>? Fields { get; set; }
     }
 
@@ -40,5 +43,5 @@ namespace Core.ViewModel
         public DateTime? CreateDate { get; set; }
         public bool? IsApproval { get; set; }
         public List<SectionDto>? Sections { get; set; }
-    }
+    }    
 }

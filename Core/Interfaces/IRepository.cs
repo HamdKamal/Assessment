@@ -15,3 +15,4 @@ namespace Core.Interfaces
         Task SaveAsync();
     }
 }
+ 
