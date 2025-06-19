@@ -1,0 +1,68 @@
+            #region Visit Status
+            new LookupValue()
+            {
+                Id = 123,
+                CategoryId = 8,
+                CreatedOn = DateTime.Now,
+                ModifiedOn = DateTime.Now,
+                ValueEn="Scheduled",
+                ValueAr = "مجدولة"
+            },
+
+            new LookupValue()
+            {
+                Id = 124,
+                CategoryId = 8,
+                CreatedOn = DateTime.Now,
+                ModifiedOn = DateTime.Now,
+                ValueEn="Rescheduled",
+                ValueAr = "تمت إعادة جدولة"
+            },
+
+            new LookupValue()
+            {
+                Id = 125,
+                CategoryId = 8,
+                CreatedOn = DateTime.Now,
+                ModifiedOn = DateTime.Now,
+                ValueEn="Conflict Of Interest Disclosure",
+                ValueAr = "الإفصاح عن تضارب المصالح"
+            },
+
+            new LookupValue()
+            {
+                Id = 126,
+                CategoryId = 8,
+                CreatedOn = DateTime.Now,
+                ModifiedOn = DateTime.Now,
+                ValueEn="New",
+                ValueAr = "جديد"
+            },
+            new LookupValue()
+            {
+                Id = 127,
+                CategoryId = 8,
+                CreatedOn = DateTime.Now,
+                ModifiedOn = DateTime.Now,
+                ValueEn="RescheduleRequested",
+                ValueAr = "طلب إعادة جدولة"
+            },
+            new LookupValue()
+            {
+                Id = 128,
+                CategoryId = 8,
+                CreatedOn = DateTime.Now,
+                ModifiedOn = DateTime.Now,
+                ValueEn="Completed",
+                ValueAr = "مكتملة"
+            },
+            new LookupValue()
+            {
+                Id = 129,
+                CategoryId = 8,
+                CreatedOn = DateTime.Now,
+                ModifiedOn = DateTime.Now,
+                ValueEn="Cancelled",
+                ValueAr = "ملغاة"
+            },
+            #endregion
