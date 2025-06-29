@@ -1,42 +1,95 @@
-    public class ComplianceReportDto
+[ApiController]
+[Route("api/[controller]")]
+public class ComplianceReportController : ControllerBase
+{
+    private readonly IComplianceReportRepository _repo;
+    private readonly IWebHostEnvironment _env;
+
+    public ComplianceReportController(IComplianceReportRepository repo, IWebHostEnvironment env)
     {
-        public Guid Id { get; set; }
-        public int ReportTypeID { get; set; }           // نوع التقرير (Initial/Final)
-        public string ReportTypeName { get; set; }
-        public string ReportNumber { get; set; }         // الرقم التعريفي (readonly/auto-generated)
-        public int VisitTypeID { get; set; }            // نوع الزيارة
-        public string VisitTypeName { get; set; }
-        public long LicenseID { get; set; }             // المرخص له
-        public string FacilityOrLine { get; set; }       // المصنع أو خط الأنابيب
-        public string Activity { get; set; }             // النشاط
-        public string SiteName { get; set; }             // موقع (اسم الموقع)
-        public string InspectionScope { get; set; }      // نطاق التفتيش
-        public int LocationID { get; set; }   // محافظة الترخيص (مقاطعة)
-        public string LocationName { get; set; }          
-        public string LicenseNumber { get; set; }            // معرف الترخيص
-        
-        public DateTime? CommercialOperationDate { get; set; }   // تاريخ التشغيل التجاري
-        public DateTime? LicenseIssueDate { get; set; }           // تاريخ إصدار الترخيص
-        public DateTime? VisitDate { get; set; }         // تاريخ الزيارة
-
-        public virtual ICollection<Auditors>? Auditors { get; set; }   // أسماء المراجعون
-        public virtual ICollection<LicenseParticipant>? Participants { get; set; }   // المشاركون من الجهة
-        public virtual ICollection<Questaion>? Questaions { get; set; }
-        public List<IFormFile>? Attachments { get; set; }
-
-
-        // for model [fromform]
-
-        public string? AuditorsJS { get; set; }
-        public string? ParticipantsJS { get; set; }
-        public string? QuestaionsJS { get; set; }
-
-        public string? Recommendation { get; set; }
-        public string? Notes { get; set; }
-        public bool? IsDeleted { get; set; }
-
-        public string? CreatedByID { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public string? ModifiedByID { get; set; }
-        public DateTime ModifiedOn { get; set; }
+        _repo = repo;
+        _env = env;
     }
+
+    [HttpPost]
+    [Route("add")]
+    public async Task<IActionResult> AddReport([FromForm] ComplianceReportDto model)
+    {
+        // Deserialize nested JSON if present (handle nulls gracefully)
+        var auditors = !string.IsNullOrWhiteSpace(model.AuditorsJS)
+            ? JsonConvert.DeserializeObject<List<Auditors>>(model.AuditorsJS)
+            : model.Auditors?.ToList();
+
+        var participants = !string.IsNullOrWhiteSpace(model.ParticipantsJS)
+            ? JsonConvert.DeserializeObject<List<LicenseParticipant>>(model.ParticipantsJS)
+            : model.Participants?.ToList();
+
+        var questions = !string.IsNullOrWhiteSpace(model.QuestaionsJS)
+            ? JsonConvert.DeserializeObject<List<Questaion>>(model.QuestaionsJS)
+            : model.Questaions?.ToList();
+
+        // Map DTO to Entity (simplified, expand as needed)
+        var entity = new ComplianceReport
+        {
+            Id = Guid.NewGuid(),
+            ReportTypeID = model.ReportTypeID,
+            ReportTypeName = model.ReportTypeName,
+            ReportNumber = model.ReportNumber,
+            VisitTypeID = model.VisitTypeID,
+            VisitTypeName = model.VisitTypeName,
+            LicenseID = model.LicenseID,
+            FacilityOrLine = model.FacilityOrLine,
+            Activity = model.Activity,
+            SiteName = model.SiteName,
+            InspectionScope = model.InspectionScope,
+            LocationID = model.LocationID,
+            LocationName = model.LocationName,
+            LicenseNumber = model.LicenseNumber,
+            CommercialOperationDate = model.CommercialOperationDate,
+            LicenseIssueDate = model.LicenseIssueDate,
+            VisitDate = model.VisitDate,
+            Auditors = auditors,
+            Participants = participants,
+            Questaions = questions,
+            Recommendation = model.Recommendation,
+            Notes = model.Notes,
+            IsDeleted = model.IsDeleted,
+            CreatedByID = model.CreatedByID,
+            CreatedOn = DateTime.UtcNow,
+            ModifiedByID = model.ModifiedByID,
+            ModifiedOn = DateTime.UtcNow,
+        };
+
+        // Handle file attachments if present
+        if (model.Attachments != null && model.Attachments.Count > 0)
+        {
+            entity.Attachments = new List<Attachment>();
+            var uploadPath = Path.Combine(_env.WebRootPath, "uploads", "reports", entity.Id.ToString());
+            Directory.CreateDirectory(uploadPath);
+
+            foreach (var formFile in model.Attachments)
+            {
+                if (formFile.Length > 0)
+                {
+                    var filePath = Path.Combine(uploadPath, formFile.FileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await formFile.CopyToAsync(stream);
+                    }
+
+                    entity.Attachments.Add(new Attachment
+                    {
+                        FileName = formFile.FileName,
+                        FileUrl = $"/uploads/reports/{entity.Id}/{formFile.FileName}",
+                        FileType = Path.GetExtension(formFile.FileName),
+                        FileSize = formFile.Length
+                    });
+                }
+            }
+        }
+
+        await _repo.AddAsync(entity);
+
+        return Ok(new { message = "Report created", reportId = entity.Id });
+    }
+}
