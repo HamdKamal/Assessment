@@ -1,82 +1,42 @@
-using ComplianceAndPeformanceSystem.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ComplianceAndPeformanceSystem.Core.Entities.ComplainceVisit;
-
-public class ComplianceReport : TrackedEntity
-{
-    // Main Info
-    public string ReportType { get; set; }           // نوع التقرير (Initial/Final)
-    public string ReportNumber { get; set; }         // الرقم التعريفي (readonly/auto-generated)
-    public string VisitType { get; set; }            // نوع الزيارة
-    public string Licensee { get; set; }             // المرخص له
-    public string FacilityOrLine { get; set; }       // المصنع أو خط الأنابيب
-    public string Activity { get; set; }             // النشاط
-    public string SiteName { get; set; }             // موقع (اسم الموقع)
-    public string InspectionScope { get; set; }      // نطاق التفتيش
-
-    // License Info
-    public string LicenseGovernorate { get; set; }   // محافظة الترخيص (مقاطعة)
-    public string LicenseId { get; set; }            // معرف الترخيص
-    public DateTime? CommercialOperationDate { get; set; }   // تاريخ التشغيل التجاري
-    public DateTime? LicenseIssueDate { get; set; }           // تاريخ إصدار الترخيص
-
-    // Visit & Reviewers
-    public DateTime? VisitDate { get; set; }         // تاريخ الزيارة
-    
-    public virtual ICollection<Auditors>? Auditors { get; set; }   // أسماء المراجعون
-    public virtual ICollection<LicenseParticipant>? LicenseParticipants { get; set; }   // License Participants
-
-    public string? Recommendation { get; set; }
-    public string? Notes { get; set; }
-
-    public virtual ICollection<AttachmentReport>? AttachmentReports { get; set; }
-}
-
-// License Participant (المشاركون من المرخص لهم)
-public class LicenseParticipant 
+    public class ComplianceReportDto
     {
-        [Key]
-        public int ID { get; set; } = new int();
-        public string Name { get; set; }                 // الاسم
-        public string Department { get; set; }           // القسم
-        public string Position { get; set; }             // الوظيفة
-        public string Phone { get; set; }                // الهاتف
-        public string Email { get; set; }                // البريد
-    public Guid ReportID { get; set; }
-    [ForeignKey(nameof(ReportID))]
-    public ComplianceReport? ComplianceReport { get; set; }
+        public Guid Id { get; set; }
+        public int ReportTypeID { get; set; }           // نوع التقرير (Initial/Final)
+        public string ReportTypeName { get; set; }
+        public string ReportNumber { get; set; }         // الرقم التعريفي (readonly/auto-generated)
+        public int VisitTypeID { get; set; }            // نوع الزيارة
+        public string VisitTypeName { get; set; }
+        public long LicenseID { get; set; }             // المرخص له
+        public string FacilityOrLine { get; set; }       // المصنع أو خط الأنابيب
+        public string Activity { get; set; }             // النشاط
+        public string SiteName { get; set; }             // موقع (اسم الموقع)
+        public string InspectionScope { get; set; }      // نطاق التفتيش
 
-}
-public class Auditors
-{
-    [Key]
-    public int ID {  get; set; } = new int();
-    public string Name { get; set; }
+        // License Info
+        public int LocationID { get; set; }   // محافظة الترخيص (مقاطعة)
+        public string LocationName { get; set; }          
+        public string LicenseNumber { get; set; }            // معرف الترخيص
+        public DateTime? CommercialOperationDate { get; set; }   // تاريخ التشغيل التجاري
+        public DateTime? LicenseIssueDate { get; set; }           // تاريخ إصدار الترخيص
 
-    public Guid ReportID { get; set; }
-    [ForeignKey(nameof(ReportID))]
-    public ComplianceReport? ComplianceReport { get; set; }
-}
-public class AttachmentReport
-{
-    [Key]
-    public int ID { get; set; } = new int();
-    public string? Name { get; set; }
-    public string? Path { get; set; }
-    public string? Type { get; set; }
-    public string? Url { get; set; }
+        // Visit & Reviewers
+        public DateTime? VisitDate { get; set; }         // تاريخ الزيارة
 
-    public Guid ReportID { get; set; }
-    [ForeignKey(nameof(ReportID))]
-    public ComplianceReport? ComplianceReport { get; set; }
-}
+        public virtual ICollection<Auditors>? Auditors { get; set; }   // أسماء المراجعون
+        public virtual ICollection<LicenseParticipant>? Participants { get; set; }   // المشاركون من الجهة
+
+        public string? Recommendation { get; set; }
+        public string? Notes { get; set; }
+
+        public virtual ICollection<Questaion>? Questaions { get; set; }
+
+        public bool? IsDeleted { get; set; }
+
+        public string? CreatedByID { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public string? ModifiedByID { get; set; }
+        public DateTime ModifiedOn { get; set; }
+    }
 
 public class PreviousRecommendations
 {
@@ -90,6 +50,52 @@ public class PreviousRecommendations
     public Guid ReportID { get; set; }
     [ForeignKey(nameof(ReportID))]
     public ComplianceReport? ComplianceReport { get; set; }
+}
 
-    
+public class Questaion
+{
+    [Key]
+    public int ID { get; set; }
+    public int? CategoryID { get; set; }
+    public string? CategoryName { get; set; }
+
+    public int? SubCategoryID { get; set; }
+    public string? SubCategoryName { get; set; }
+
+    public int? EntryID { get; set; }
+    public string? EntryName { get; set; }
+
+    public string? Grade { get; set; }
+    public bool Evidence { get; set; } = false;
+    public string? Comments { get; set; }
+
+    public Guid ReportID { get; set; }
+    [ForeignKey(nameof(ReportID))]
+    public ComplianceReport? ComplianceReport { get; set; }
+}
+
+public class LicenseParticipant
+{
+    [Key]
+    public int ID { get; set; } = new int();
+    public string Name { get; set; }                 // الاسم
+    public string Department { get; set; }           // القسم
+    public string Position { get; set; }             // الوظيفة
+    public string Phone { get; set; }                // الهاتف
+    public string Email { get; set; }                // البريد
+
+    public Guid ReportID { get; set; }
+    [ForeignKey(nameof(ReportID))]
+    public ComplianceReport? ComplianceReport { get; set; }
+}
+
+public class Auditors
+{
+    [Key]
+    public int ID { get; set; } = new int();
+    public string Name { get; set; }
+
+    public Guid ReportID { get; set; }
+    [ForeignKey(nameof(ReportID))]
+    public ComplianceReport? ComplianceReport { get; set; }
 }
