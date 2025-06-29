@@ -1,168 +1,66 @@
-☒
-Category
-Legal & Regulation
-
-Sub-category
-Description
-
-Compliance
-Complied with licensed facility's design capacity data
-
-
-
-☐
-Compliance
-Implemented recommendations from previous audits within defined period
-
-
-
-☐
-Compliance
-Provided data/information requested by SWA in an approved format
-
-
-
-☐
-Compliance
-Supported audit team and complied with requests
-
-
-
-☐
-Licensing requirements
-Obtained a land title deed for licensed facility/asset
-
-
-
-☐
-Licensing requirements
-Obtained a valid license or permit as per law
-
-
-
-☐
-Licensing requirements
-Obtained required approvals for mergers/acquisitions
-
-
-
-☐
-Organization & capabilities
-Established compliance department and defined job descriptions
-
-
-
-☐
-Organization & capabilities
-Submitted and obtained approval for the compliance plan
-
-
-
-☐
-Category
-Financial
-
-Sub-category
-Description
-
-☐
-Accounting requirements
-Established an updated fixed asset register (FAR)
-
-
-
-☐
-Accounting requirements
-Implemented separate accounts for licensed activities
-
-
-
-☐
-Financial information
-Submitted annual audited financial statements
-
-
-
-☐
-Financial information
-Provided valid and accurate commercial agreements
-
-
-
-☐
-Financial information
-Submitted and obtained approval for revenue management method
-
-
-
-
-☒
-Category
-Technical
-☒
-Organization & capabilities
-Mechanism for monitoring and controlling water quality
-
-
-
-☐
-Organization & capabilities
-Established operational plans
-
-
-
-☐
-Organization & capabilities
-Established maintenance and incident reporting plans
-
-
-
-☐
-Organization & capabilities
-Established risk and emergency management plans
-
-
-
-☒
-Regulatory requirements
-Complied with KSA localization and operational performance standards
-
-
-
-☐
-Regulatory requirements
-Disposed wastewater treated as per standards
-
-
-
-☐
-Category
-Consumer Service
-
-Sub-category
-Description
-
-☐
-Consumer information
-Kept encrypted consumer data, restricting access to required employees
-
-
-
-☐
-Consumer information
-Made service information publicly available
-
-
-
-☐
-Consumer satisfaction
-Established a call center for consumer inquiries
-
-
-
-☐
-Consumer satisfaction
-Provided training for employees dealing with consumers
-
-
-
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    // Seed ReportCategories
+    modelBuilder.Entity<ReportCategory>().HasData(
+        new ReportCategory { Id = 1, Name = "Legal & Regulation", NameAr = "القانونية والتنظيمية" },
+        new ReportCategory { Id = 2, Name = "Financial", NameAr = "مالي" },
+        new ReportCategory { Id = 3, Name = "Technical", NameAr = "فني" },
+        new ReportCategory { Id = 4, Name = "Consumer Service", NameAr = "خدمة المستهلك" }
+    );
+
+    // Seed SubCategories
+    modelBuilder.Entity<SubCategory>().HasData(
+        new SubCategory { Id = 11, Name = "Compliance", NameAr = "الامتثال", CategoryID = 1 },
+        new SubCategory { Id = 12, Name = "Licensing requirements", NameAr = "متطلبات الترخيص", CategoryID = 1 },
+        new SubCategory { Id = 13, Name = "Organization & capabilities", NameAr = "الهيكل التنظيمي والقدرات", CategoryID = 1 },
+
+        new SubCategory { Id = 21, Name = "Accounting requirements", NameAr = "متطلبات المحاسبة", CategoryID = 2 },
+        new SubCategory { Id = 22, Name = "Financial information", NameAr = "المعلومات المالية", CategoryID = 2 },
+
+        new SubCategory { Id = 31, Name = "Organization & capabilities", NameAr = "الهيكل التنظيمي والقدرات", CategoryID = 3 },
+        new SubCategory { Id = 32, Name = "Regulatory requirements", NameAr = "المتطلبات التنظيمية", CategoryID = 3 },
+
+        new SubCategory { Id = 41, Name = "Consumer information", NameAr = "معلومات المستهلك", CategoryID = 4 },
+        new SubCategory { Id = 42, Name = "Consumer satisfaction", NameAr = "رضا المستهلك", CategoryID = 4 }
+    );
+
+    // Seed Entries
+    modelBuilder.Entity<Entry>().HasData(
+        // Legal & Regulation - Compliance
+        new Entry { Id = 111, Name = "Complied with licensed facility's design capacity data", NameAr = "الامتثال لبيانات الطاقة التصميمية للمنشأة المرخصة", SupCategoryID = 11 },
+        new Entry { Id = 112, Name = "Implemented recommendations from previous audits within defined period", NameAr = "تنفيذ التوصيات من عمليات التدقيق السابقة ضمن الفترة المحددة", SupCategoryID = 11 },
+        new Entry { Id = 113, Name = "Provided data/information requested by SWA in an approved format", NameAr = "تقديم البيانات/المعلومات المطلوبة من الهيئة بالصيغة المعتمدة", SupCategoryID = 11 },
+        new Entry { Id = 114, Name = "Supported audit team and complied with requests", NameAr = "دعم فريق التدقيق والامتثال للطلبات", SupCategoryID = 11 },
+        // Legal & Regulation - Licensing requirements
+        new Entry { Id = 121, Name = "Obtained a land title deed for licensed facility/asset", NameAr = "الحصول على صك ملكية للأصل أو المنشأة المرخصة", SupCategoryID = 12 },
+        new Entry { Id = 122, Name = "Obtained a valid license or permit as per law", NameAr = "الحصول على ترخيص أو تصريح ساري حسب النظام", SupCategoryID = 12 },
+        new Entry { Id = 123, Name = "Obtained required approvals for mergers/acquisitions", NameAr = "الحصول على الموافقات اللازمة للاندماجات أو الاستحواذات", SupCategoryID = 12 },
+        // Legal & Regulation - Organization & capabilities
+        new Entry { Id = 131, Name = "Established compliance department and defined job descriptions", NameAr = "إنشاء إدارة امتثال وتحديد الوصف الوظيفي", SupCategoryID = 13 },
+        new Entry { Id = 132, Name = "Submitted and obtained approval for the compliance plan", NameAr = "تقديم واعتماد خطة الامتثال", SupCategoryID = 13 },
+
+        // Financial - Accounting requirements
+        new Entry { Id = 211, Name = "Established an updated fixed asset register (FAR)", NameAr = "إعداد سجل الأصول الثابتة المحدّث", SupCategoryID = 21 },
+        new Entry { Id = 212, Name = "Implemented separate accounts for licensed activities", NameAr = "تطبيق حسابات منفصلة للأنشطة المرخصة", SupCategoryID = 21 },
+        // Financial - Financial information
+        new Entry { Id = 221, Name = "Submitted annual audited financial statements", NameAr = "تقديم القوائم المالية السنوية المدققة", SupCategoryID = 22 },
+        new Entry { Id = 222, Name = "Provided valid and accurate commercial agreements", NameAr = "تقديم اتفاقيات تجارية صحيحة ودقيقة", SupCategoryID = 22 },
+        new Entry { Id = 223, Name = "Submitted and obtained approval for revenue management method", NameAr = "تقديم واعتماد آلية إدارة الإيرادات", SupCategoryID = 22 },
+
+        // Technical - Organization & capabilities
+        new Entry { Id = 311, Name = "Mechanism for monitoring and controlling water quality", NameAr = "آلية مراقبة وضبط جودة المياه", SupCategoryID = 31 },
+        new Entry { Id = 312, Name = "Established operational plans", NameAr = "إعداد خطط تشغيلية", SupCategoryID = 31 },
+        new Entry { Id = 313, Name = "Established maintenance and incident reporting plans", NameAr = "إعداد خطط الصيانة والتقارير عن الحوادث", SupCategoryID = 31 },
+        new Entry { Id = 314, Name = "Established risk and emergency management plans", NameAr = "إعداد خطط إدارة المخاطر والطوارئ", SupCategoryID = 31 },
+        // Technical - Regulatory requirements
+        new Entry { Id = 321, Name = "Complied with KSA localization and operational performance standards", NameAr = "الامتثال لمعايير التوطين والأداء التشغيلي في المملكة", SupCategoryID = 32 },
+        new Entry { Id = 322, Name = "Disposed wastewater treated as per standards", NameAr = "تصريف مياه الصرف الصحي المعالجة حسب المعايير", SupCategoryID = 32 },
+
+        // Consumer Service - Consumer information
+        new Entry { Id = 411, Name = "Kept encrypted consumer data, restricting access to required employees", NameAr = "حفظ بيانات المستهلك بشكل مشفر وتقييد الوصول", SupCategoryID = 41 },
+        new Entry { Id = 412, Name = "Made service information publicly available", NameAr = "إتاحة معلومات الخدمة للعامة", SupCategoryID = 41 },
+        // Consumer Service - Consumer satisfaction
+        new Entry { Id = 421, Name = "Established a call center for consumer inquiries", NameAr = "إنشاء مركز اتصال لاستفسارات المستهلك", SupCategoryID = 42 },
+        new Entry { Id = 422, Name = "Provided training for employees dealing with consumers", NameAr = "تقديم تدريب للموظفين للتعامل مع المستهلكين", SupCategoryID = 42 }
+    );
+}
