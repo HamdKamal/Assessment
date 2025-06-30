@@ -1,0 +1,94 @@
+{
+  "id": "c4a323e0-26b6-4f6e-b858-c7a0016a7001",
+  "reportTypeID": 1,
+  "reportTypeName": "Initial",
+  "reportNumber": "REP-2024-1005",
+  "visitTypeID": 2,
+  "visitTypeName": "Planned",
+  "licenseID": 100245,
+  "facilityOrLine": "Main Water Plant",
+  "activity": "Water Treatment",
+  "siteName": "North District Facility",
+  "inspectionScope": "Full Compliance Check",
+  "locationID": 11,
+  "locationName": "Riyadh",
+  "licenseNumber": "LIC-2024-8765",
+  "commercialOperationDate": "2023-01-15T00:00:00",
+  "licenseIssueDate": "2022-12-20T00:00:00",
+  "visitDate": "2024-06-10T10:00:00",
+  "auditors": [
+    {
+      "id": 1,
+      "name": "Dr. Ali Hassan",
+      "reportID": "c4a323e0-26b6-4f6e-b858-c7a0016a7001"
+    },
+    {
+      "id": 2,
+      "name": "Fatima Al-Zahrani",
+      "reportID": "c4a323e0-26b6-4f6e-b858-c7a0016a7001"
+    }
+  ],
+  "participants": [
+    {
+      "id": 1,
+      "name": "Mohamed Kamal",
+      "department": "Operations",
+      "position": "Supervisor",
+      "phone": "+966512345678",
+      "email": "mohamed@company.com",
+      "reportID": "c4a323e0-26b6-4f6e-b858-c7a0016a7001"
+    },
+    {
+      "id": 2,
+      "name": "Sara Abdullah",
+      "department": "Compliance",
+      "position": "Officer",
+      "phone": "+966543216789",
+      "email": "sara@company.com",
+      "reportID": "c4a323e0-26b6-4f6e-b858-c7a0016a7001"
+    }
+  ],
+  "questaions": [
+    {
+      "id": 1,
+      "categoryID": 1,
+      "categoryName": "Legal & Regulation",
+      "subCategoryID": 11,
+      "subCategoryName": "Compliance",
+      "entryID": 111,
+      "entryName": "Complied with licensed facility's design capacity data",
+      "grade": "Green",
+      "evidence": true,
+      "comments": "Verified as per documentation.",
+      "reportID": "c4a323e0-26b6-4f6e-b858-c7a0016a7001"
+    },
+    {
+      "id": 2,
+      "categoryID": 2,
+      "categoryName": "Technical",
+      "subCategoryID": 32,
+      "subCategoryName": "Regulatory requirements",
+      "entryID": 321,
+      "entryName": "Complied with KSA localization and operational performance standards",
+      "grade": "Yellow",
+      "evidence": false,
+      "comments": "Partial compliance - more work needed.",
+      "reportID": "c4a323e0-26b6-4f6e-b858-c7a0016a7001"
+    }
+  ],
+  "previousRecommendations": {
+    "id": 1,
+    "visitDate": "2024-05-01T09:30:00",
+    "completionStatusID": 2,
+    "comments": "Recommendation partially completed.",
+    "action": "Update safety procedures.",
+    "reportID": "c4a323e0-26b6-4f6e-b858-c7a0016a7001"
+  },
+  "recommendation": "Continue to monitor compliance on a quarterly basis.",
+  "notes": "Plant operations are generally satisfactory.",
+  "isDeleted": false,
+  "createdByID": "U1001",
+  "createdOn": "2024-06-29T13:00:00",
+  "modifiedByID": "U1001",
+  "modifiedOn": "2024-06-29T13:00:00"
+}
