@@ -1,19 +1,81 @@
-public class ReportCategoryVM
+public class CorrectiveActionPlan
 {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public List<SubCategoryVM>? SubCategories { get; set; }
+    public Guid Id { get; set; }
+    public Guid ComplianceReportId { get; set; } // Link to main report/visit
+    public string PlanDetails { get; set; }      // Description
+    public DateTime Deadline { get; set; }       // When evidence is due
+    public string CreatedById { get; set; }
+    public DateTime CreatedOn { get; set; }
+    public CorrectiveActionPlanStatus Status { get; set; }
+    public ICollection<CorrectiveEvidence> Evidences { get; set; }
 }
-public class SubCategoryVM
+public enum CorrectiveActionPlanStatus
 {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int? CategoryID { get; set; }
-    public List<EntriesVM>? Entries { get; set; }
+    Draft, SentToLicensee, EvidenceSubmitted, UnderReview, Approved, Returned, Closed
 }
-public class EntriesVM
+
+
+/////// 
+public class CorrectiveEvidence
 {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int? SupCategoryID { get; set; }
+    public Guid Id { get; set; }
+    public Guid PlanId { get; set; }
+    public string FileName { get; set; }
+    public string FileUrl { get; set; }
+    public string UploadedById { get; set; }
+    public DateTime UploadedOn { get; set; }
+    public string Comments { get; set; }
+    public EvidenceStatus Status { get; set; }
+}
+public enum EvidenceStatus
+{
+    Pending, Accepted, Returned
+}
+////////
+
+public class ComplianceReportReview
+{
+    public Guid Id { get; set; }
+    public Guid ComplianceReportId { get; set; }
+    public string ReviewerRole { get; set; } // "ComplianceManager", "DirectorGeneral"
+    public bool? IsApproved { get; set; }
+    public string ReasonForReturn { get; set; }
+    public DateTime ReviewedOn { get; set; }
+    public string ReviewedById { get; set; }
+}
+
+/////////// 
+public class ActivityLog
+{
+    public Guid Id { get; set; }
+    public string Action { get; set; }
+    public string ActorId { get; set; }
+    public string ActorRole { get; set; }
+    public DateTime ActionTime { get; set; }
+    public string Description { get; set; }
+    public Guid RelatedEntityId { get; set; } // Plan, Evidence, or Report ID
+}
+
+
+/////// dto ////////
+
+public class CorrectiveActionPlanDto
+{
+    public Guid ComplianceReportId { get; set; }
+    public string PlanDetails { get; set; }
+    public DateTime Deadline { get; set; }
+}
+
+
+public class EvidenceReviewDto
+{
+    public Guid EvidenceId { get; set; }
+    public bool IsApproved { get; set; }
+    public string ReviewerComments { get; set; }
+}
+
+public class ComplianceReportReviewDto
+{
+    public bool IsApproved { get; set; }
+    public string ReasonForReturn { get; set; } // Required if not approved
 }
