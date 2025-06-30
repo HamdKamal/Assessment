@@ -1,130 +1,102 @@
-public interface ICorrectiveActionPlanService
-{
-    Task<Guid> CreatePlanAsync(CorrectiveActionPlanDto dto, string createdById);
-    Task<Guid> UploadEvidenceAsync(Guid planId, EvidenceUploadDto dto, string userId);
-    Task ReviewEvidenceAsync(Guid planId, EvidenceReviewDto dto, string reviewerId);
-}
-
-public interface IComplianceReportReviewService
-{
-    Task ReviewReportAsync(Guid reportId, ComplianceReportReviewDto dto, string reviewerRole, string reviewerId);
-}
-
-
-/////// service ////////////
-
-public class CorrectiveActionPlanService : ICorrectiveActionPlanService
-{
-    private readonly ApplicationDbContext _db;
-    private readonly IWebHostEnvironment _env;
-
-    public CorrectiveActionPlanService(ApplicationDbContext db, IWebHostEnvironment env)
+    public async Task<ResponseResult<ComplianceRequestDto>> GetComplianceRequest(bool isEmail = false)
     {
-        _db = db;
-        _env = env;
-    }
+        var record = await dbContext.ComplianceRequest
+               .Include(s => s.ComplianceSpecialists)
+               .Include(s => s.ComplianceDetails)
+               .Include(s => s.Status)
+               .OrderByDescending(s => s.CreatedOn).FirstOrDefaultAsync();
+        if (record == null) throw new NotFoundException("ComplianceRequest", "Not found");
+        if (DateTime.Now.Subtract(record.CreatedOn).Days > 365) throw new NotFoundException("ComplianceRequest", "Yearly Compliance Request not found \r\n لم يتم العثور على طلب الامتثال السنوي");
 
-    public async Task<Guid> CreatePlanAsync(CorrectiveActionPlanDto dto, string createdById)
-    {
-        var plan = new CorrectiveActionPlan
+        if (isEmail || (currentUserService != null && (record.ComplianceSpecialists.Any(s => s.SpecialistUserName == currentUserService.User.UserName) || currentUserService.User.Role.Contains(RoleEnum.PerformanceMonitoringManager) || currentUserService.User.Role.Contains(RoleEnum.ComplianceManager))))
         {
-            Id = Guid.NewGuid(),
-            ComplianceReportId = dto.ComplianceReportId,
-            PlanDetails = dto.PlanDetails,
-            Deadline = dto.Deadline,
-            CreatedById = createdById,
-            CreatedOn = DateTime.UtcNow,
-            Status = CorrectiveActionPlanStatus.SentToLicensee
-        };
+            var categoryLookupValue = await dbContext.LookupValue.ToListAsync();
+            ComplianceRequestDto complianceRequestDto = new ComplianceRequestDto()
+            {
+                Id = record.Id,
+                Seq = record.Seq,
+                LastSendDate = record.LastSendDate,
+                AssignTaskName = currentLanguageService.Language == LanguageEnum.En ? record.AssignTaskNameEn : record.AssignTaskNameAr,
+                CreatedOn = record.CreatedOn,
+                AssignedOn = record.AssignedOn,
+                StatusId = record.StatusId,
+                StatusName = currentLanguageService.Language == LanguageEnum.En ? record.Status.ValueEn : record.Status.ValueAr,
+                PassedDays = record.PassedDays,
+                RemainingDays = record.RemainingDays,
+                AssignedSpecialists = record.ComplianceSpecialists?.Select(a => new ComplianceSpecialistDto()
+                {
+                    SpecialistUserEmail = a.SpecialistUserEmail,
+                    SpecialistUserId = a.SpecialistUserId,
+                    SpecialistUserName = a.SpecialistUserName
+                })?.ToList(),
+                CompliancePlans = record.ComplianceDetails?.Where(s => s.IsDeleted == false).OrderByDescending(s => s.Seq).Select(s => new CompliancePlanDto()
+                {
+                    Id = s.Id,
+                    Seq = s.Seq,
+                    ActivityId = s.ActivityId,
+                    ComplianceRequestId = s.ComplianceRequestId,
 
-        _db.CorrectiveActionPlans.Add(plan);
-        await _db.SaveChangesAsync();
+                    ActivityName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.ActivityId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.ActivityId)?.ValueAr,
 
-        // TODO: Notify entity
+                    LicensedEntityId = s.LicensedEntityId,
+                    LicensedEntityName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.LicensedEntityId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.LicensedEntityId)?.ValueAr,
 
-        return plan.Id;
-    }
 
-    public async Task<Guid> UploadEvidenceAsync(Guid planId, EvidenceUploadDto dto, string userId)
-    {
-        var plan = await _db.CorrectiveActionPlans.FindAsync(planId);
-        if (plan == null) throw new Exception("Plan not found");
+                    LocationId = s.LocationId,
+                    LocationName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.LocationId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.LocationId)?.ValueAr,
 
-        var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "evidence", plan.Id.ToString());
-        Directory.CreateDirectory(uploadsDir);
+                    PlantNameId = s.PlantNameId,
+                    PlantName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.PlantNameId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.PlantNameId)?.ValueAr,
 
-        var fileName = $"{Guid.NewGuid()}_{dto.File.FileName}";
-        var filePath = Path.Combine(uploadsDir, fileName);
+                    QuarterPlannedForVisitId = s.QuarterPlannedForVisitId,
+                    QuarterPlannedForVisitName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.QuarterPlannedForVisitId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.QuarterPlannedForVisitId)?.ValueAr,
+                    QuarterPlannedForVisitNameEn = categoryLookupValue.FirstOrDefault(a => a.Id == s.QuarterPlannedForVisitId)?.ValueEn,
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await dto.File.CopyToAsync(stream);
+                    VisitTypeId = s.VisitTypeId,
+                    VisitTypeName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitTypeId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitTypeId)?.ValueAr,
+
+                    VisitDate = s.VisitDate,
+                    VisitReferenceNumber = s.VisitReferenceNumber,
+                    DesignedCapacity = s.DesignedCapacity,
+
+                    VisitStatusId = s.VisitStatusId,
+                    VisitStatusName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitStatusId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitStatusId)?.ValueAr,
+
+                    ModifiedOn = s.ModifiedOn,
+                    CreatedOn = s.CreatedOn,
+
+                    LocationVisit = s.LocationVisit,
+
+                    ScheduledDate = s.ScheduledDate,
+                    CancelledAt = s.CancelledAt,
+                    CancellationReason = s.CancellationReason,
+                    RescheduleReason = s.RescheduleReason,
+
+                    VisitStatusHistory = s.VisitStatusHistory?.Select(a => new VisitStatusHistory
+                    {
+                        Id = a.Id,
+                        ActionAt = a.ActionAt,
+                        ActionByUserId = a.ActionByUserId,
+                        ActionReason = a.ActionReason,
+                        ComplianceDetailsId = a.ComplianceDetailsId,
+                        NewStatus = a.NewStatus,
+                        OldStatus = a.OldStatus,
+                        RequestedNewDate = a.RequestedNewDate
+                    }).ToList(),
+                    VisitDocuments = s.VisitDocuments?.Select(a => new VisitDocument
+                    {
+                        Id = a.Id,
+                        ComplianceDetailsID = a.ComplianceDetailsID,
+                        Name = a.Name,
+                        Type = a.Type,
+                        Url = a.Url,
+                        Path = a.Path
+                    }).ToList(),
+
+                }).ToList(),
+            };
+            return ResponseResult<ComplianceRequestDto>.Success(complianceRequestDto);
         }
 
-        var evidence = new CorrectiveEvidence
-        {
-            Id = Guid.NewGuid(),
-            PlanId = planId,
-            FileName = fileName,
-            FileUrl = $"/uploads/evidence/{plan.Id}/{fileName}",
-            UploadedById = userId,
-            UploadedOn = DateTime.UtcNow,
-            Comments = dto.Comments,
-            Status = EvidenceStatus.Pending
-        };
-        _db.CorrectiveEvidences.Add(evidence);
-        await _db.SaveChangesAsync();
-
-        // TODO: Notify Compliance Specialist
-
-        return evidence.Id;
+        return null;
     }
-
-    public async Task ReviewEvidenceAsync(Guid planId, EvidenceReviewDto dto, string reviewerId)
-    {
-        var evidence = await _db.CorrectiveEvidences.FindAsync(dto.EvidenceId);
-        if (evidence == null) throw new Exception("Evidence not found");
-
-        evidence.Status = dto.IsApproved ? EvidenceStatus.Accepted : EvidenceStatus.Returned;
-        evidence.Comments += $"\nReview by {reviewerId}: {dto.ReviewerComments}";
-
-        await _db.SaveChangesAsync();
-
-        // TODO: Notify entity
-    }
-}
-
-public class ComplianceReportReviewService : IComplianceReportReviewService
-{
-    private readonly ApplicationDbContext _db;
-    public ComplianceReportReviewService(ApplicationDbContext db)
-    {
-        _db = db;
-    }
-
-    public async Task ReviewReportAsync(Guid reportId, ComplianceReportReviewDto dto, string reviewerRole, string reviewerId)
-    {
-        var review = new ComplianceReportReview
-        {
-            Id = Guid.NewGuid(),
-            ComplianceReportId = reportId,
-            ReviewerRole = reviewerRole,
-            IsApproved = dto.IsApproved,
-            ReasonForReturn = dto.ReasonForReturn,
-            ReviewedOn = DateTime.UtcNow,
-            ReviewedById = reviewerId
-        };
-        _db.ComplianceReportReviews.Add(review);
-        await _db.SaveChangesAsync();
-
-        // TODO: Notify next party
-    }
-}
-
-//////// dto /////////
-
-public class EvidenceUploadDto
-{
-    public IFormFile File { get; set; }
-    public string Comments { get; set; }
-}
