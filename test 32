@@ -1,0 +1,21 @@
+public interface ICorrectiveActionPlanRepository
+{
+    Task<CorrectiveActionPlan> GetByIdAsync(Guid planId);
+    Task AddAsync(CorrectiveActionPlan plan);
+    Task UpdateAsync(CorrectiveActionPlan plan);
+    Task<IEnumerable<CorrectiveActionPlan>> GetPlansForReportAsync(Guid reportId);
+}
+
+public interface ICorrectiveEvidenceRepository
+{
+    Task<CorrectiveEvidence> GetByIdAsync(Guid evidenceId);
+    Task AddAsync(CorrectiveEvidence evidence);
+    Task UpdateAsync(CorrectiveEvidence evidence);
+    Task<IEnumerable<CorrectiveEvidence>> GetByPlanIdAsync(Guid planId);
+}
+
+public interface IComplianceReportReviewRepository
+{
+    Task AddAsync(ComplianceReportReview review);
+    Task<IEnumerable<ComplianceReportReview>> GetByReportIdAsync(Guid reportId);
+}
