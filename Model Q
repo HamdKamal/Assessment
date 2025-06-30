@@ -1,81 +1,135 @@
-public class CorrectiveActionPlan
+[ApiController]
+[Route("api/[controller]")]
+public class CorrectivePlanController : ControllerBase
 {
-    public Guid Id { get; set; }
-    public Guid ComplianceReportId { get; set; } // Link to main report/visit
-    public string PlanDetails { get; set; }      // Description
-    public DateTime Deadline { get; set; }       // When evidence is due
-    public string CreatedById { get; set; }
-    public DateTime CreatedOn { get; set; }
-    public CorrectiveActionPlanStatus Status { get; set; }
-    public ICollection<CorrectiveEvidence> Evidences { get; set; }
-}
-public enum CorrectiveActionPlanStatus
-{
-    Draft, SentToLicensee, EvidenceSubmitted, UnderReview, Approved, Returned, Closed
-}
+    private readonly ApplicationDbContext _db;
+    private readonly IWebHostEnvironment _env;
+    // Inject your notification/email service as needed
 
+    public CorrectivePlanController(ApplicationDbContext db, IWebHostEnvironment env)
+    {
+        _db = db;
+        _env = env;
+    }
 
-/////// 
-public class CorrectiveEvidence
-{
-    public Guid Id { get; set; }
-    public Guid PlanId { get; set; }
-    public string FileName { get; set; }
-    public string FileUrl { get; set; }
-    public string UploadedById { get; set; }
-    public DateTime UploadedOn { get; set; }
-    public string Comments { get; set; }
-    public EvidenceStatus Status { get; set; }
-}
-public enum EvidenceStatus
-{
-    Pending, Accepted, Returned
-}
-////////
+    // 1. Create and share corrective action plan
+    [HttpPost]
+    public async Task<IActionResult> CreatePlan([FromBody] CorrectiveActionPlanDto dto)
+    {
+        var plan = new CorrectiveActionPlan
+        {
+            Id = Guid.NewGuid(),
+            ComplianceReportId = dto.ComplianceReportId,
+            PlanDetails = dto.PlanDetails,
+            Deadline = dto.Deadline,
+            CreatedById = User.Identity.Name, // Or AD user id
+            CreatedOn = DateTime.UtcNow,
+            Status = CorrectiveActionPlanStatus.SentToLicensee
+        };
 
-public class ComplianceReportReview
-{
-    public Guid Id { get; set; }
-    public Guid ComplianceReportId { get; set; }
-    public string ReviewerRole { get; set; } // "ComplianceManager", "DirectorGeneral"
-    public bool? IsApproved { get; set; }
-    public string ReasonForReturn { get; set; }
-    public DateTime ReviewedOn { get; set; }
-    public string ReviewedById { get; set; }
-}
+        _db.CorrectiveActionPlans.Add(plan);
+        await _db.SaveChangesAsync();
 
-/////////// 
-public class ActivityLog
-{
-    public Guid Id { get; set; }
-    public string Action { get; set; }
-    public string ActorId { get; set; }
-    public string ActorRole { get; set; }
-    public DateTime ActionTime { get; set; }
-    public string Description { get; set; }
-    public Guid RelatedEntityId { get; set; } // Plan, Evidence, or Report ID
-}
+        // TODO: Notify Licensed Entity Representative here
 
+        return Ok(new { message = "Corrective action plan created", planId = plan.Id });
+    }
 
-/////// dto ////////
+    // 2. Upload evidence (licensed entity)
+    [HttpPost("{planId}/evidence")]
+    public async Task<IActionResult> UploadEvidence([FromRoute] Guid planId, [FromForm] IFormFile file, [FromForm] string comments)
+    {
+        var plan = await _db.CorrectiveActionPlans.FindAsync(planId);
+        if (plan == null) return NotFound("Plan not found");
 
-public class CorrectiveActionPlanDto
-{
-    public Guid ComplianceReportId { get; set; }
-    public string PlanDetails { get; set; }
-    public DateTime Deadline { get; set; }
-}
+        var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "evidence", plan.Id.ToString());
+        Directory.CreateDirectory(uploadsDir);
 
+        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+        var filePath = Path.Combine(uploadsDir, fileName);
 
-public class EvidenceReviewDto
-{
-    public Guid EvidenceId { get; set; }
-    public bool IsApproved { get; set; }
-    public string ReviewerComments { get; set; }
-}
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
 
-public class ComplianceReportReviewDto
-{
-    public bool IsApproved { get; set; }
-    public string ReasonForReturn { get; set; } // Required if not approved
+        var evidence = new CorrectiveEvidence
+        {
+            Id = Guid.NewGuid(),
+            PlanId = planId,
+            FileName = fileName,
+            FileUrl = $"/uploads/evidence/{plan.Id}/{fileName}",
+            UploadedById = User.Identity.Name,
+            UploadedOn = DateTime.UtcNow,
+            Comments = comments,
+            Status = EvidenceStatus.Pending
+        };
+        _db.CorrectiveEvidences.Add(evidence);
+        await _db.SaveChangesAsync();
+
+        // TODO: Notify Compliance Specialist
+
+        return Ok(new { message = "Evidence uploaded", evidenceId = evidence.Id });
+    }
+
+    // 3. Review evidence (Compliance Specialist)
+    [HttpPost("{planId}/review-evidence")]
+    public async Task<IActionResult> ReviewEvidence([FromRoute] Guid planId, [FromBody] EvidenceReviewDto dto)
+    {
+        var evidence = await _db.CorrectiveEvidences.FindAsync(dto.EvidenceId);
+        if (evidence == null) return NotFound("Evidence not found");
+
+        evidence.Status = dto.IsApproved ? EvidenceStatus.Accepted : EvidenceStatus.Returned;
+        evidence.Comments += $"\nReview: {dto.ReviewerComments}"; // Append review comments
+
+        await _db.SaveChangesAsync();
+
+        // TODO: Notify Licensed Entity of acceptance or need for more info
+
+        return Ok(new { message = "Evidence reviewed" });
+    }
+
+    // 4. Compliance Manager approves/returns report
+    [HttpPost("/api/report/{reportId}/manager-review")]
+    public async Task<IActionResult> ReviewReportByManager([FromRoute] Guid reportId, [FromBody] ComplianceReportReviewDto dto)
+    {
+        var review = new ComplianceReportReview
+        {
+            Id = Guid.NewGuid(),
+            ComplianceReportId = reportId,
+            ReviewerRole = "ComplianceManager",
+            IsApproved = dto.IsApproved,
+            ReasonForReturn = dto.ReasonForReturn,
+            ReviewedOn = DateTime.UtcNow,
+            ReviewedById = User.Identity.Name
+        };
+        _db.ComplianceReportReviews.Add(review);
+        await _db.SaveChangesAsync();
+
+        // TODO: Notify Director General or Compliance Specialist
+
+        return Ok(new { message = "Report reviewed by manager" });
+    }
+
+    // 5. Director General final approval/return
+    [HttpPost("/api/report/{reportId}/director-review")]
+    public async Task<IActionResult> ReviewReportByDirector([FromRoute] Guid reportId, [FromBody] ComplianceReportReviewDto dto)
+    {
+        var review = new ComplianceReportReview
+        {
+            Id = Guid.NewGuid(),
+            ComplianceReportId = reportId,
+            ReviewerRole = "DirectorGeneral",
+            IsApproved = dto.IsApproved,
+            ReasonForReturn = dto.ReasonForReturn,
+            ReviewedOn = DateTime.UtcNow,
+            ReviewedById = User.Identity.Name
+        };
+        _db.ComplianceReportReviews.Add(review);
+        await _db.SaveChangesAsync();
+
+        // TODO: Notify Compliance Manager
+
+        return Ok(new { message = "Report reviewed by director" });
+    }
 }
