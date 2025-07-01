@@ -1,102 +1,58 @@
-    public async Task<ResponseResult<ComplianceRequestDto>> GetComplianceRequest(bool isEmail = false)
-    {
-        var record = await dbContext.ComplianceRequest
-               .Include(s => s.ComplianceSpecialists)
-               .Include(s => s.ComplianceDetails)
-               .Include(s => s.Status)
-               .OrderByDescending(s => s.CreatedOn).FirstOrDefaultAsync();
-        if (record == null) throw new NotFoundException("ComplianceRequest", "Not found");
-        if (DateTime.Now.Subtract(record.CreatedOn).Days > 365) throw new NotFoundException("ComplianceRequest", "Yearly Compliance Request not found \r\n لم يتم العثور على طلب الامتثال السنوي");
+public class ComplianceRequestFilterDto
+{
+    public string Status { get; set; }
+    public string VisitType { get; set; }
+    public string LicenseeName { get; set; }
+    public string SiteName { get; set; }
+    public DateTime? VisitDate { get; set; } // single date, not a range
+}
 
-        if (isEmail || (currentUserService != null && (record.ComplianceSpecialists.Any(s => s.SpecialistUserName == currentUserService.User.UserName) || currentUserService.User.Role.Contains(RoleEnum.PerformanceMonitoringManager) || currentUserService.User.Role.Contains(RoleEnum.ComplianceManager))))
+///// 
+
+[HttpPost("filter")]
+public async Task<ActionResult<List<ComplianceRequestDto>>> GetComplianceRequests([FromBody] ComplianceRequestFilterDto filter)
+{
+    var query = dbContext.ComplianceRequest
+        .Include(r => r.Status)
+        .Include(r => r.ComplianceDetails)
+        .AsQueryable();
+
+    // Status filter
+    if (!string.IsNullOrEmpty(filter.Status))
+        query = query.Where(r => r.Status.ValueEn == filter.Status || r.Status.ValueAr == filter.Status);
+
+    // Visit type filter
+    if (!string.IsNullOrEmpty(filter.VisitType))
+        query = query.Where(r => r.ComplianceDetails.Any(d => d.VisitTypeName == filter.VisitType));
+
+    // Licensee name filter
+    if (!string.IsNullOrEmpty(filter.LicenseeName))
+        query = query.Where(r => r.ComplianceDetails.Any(d => d.LicensedEntityName.Contains(filter.LicenseeName)));
+
+    // Site name filter
+    if (!string.IsNullOrEmpty(filter.SiteName))
+        query = query.Where(r => r.ComplianceDetails.Any(d => d.LocationName.Contains(filter.SiteName)));
+
+    // Visit date filter (exact match)
+    if (filter.VisitDate.HasValue)
+        query = query.Where(r => r.ComplianceDetails.Any(d => d.VisitDate.HasValue && d.VisitDate.Value.Date == filter.VisitDate.Value.Date));
+
+    // Select data to DTO (can use AutoMapper in a real project)
+    var list = await query
+        .Select(r => new ComplianceRequestDto
         {
-            var categoryLookupValue = await dbContext.LookupValue.ToListAsync();
-            ComplianceRequestDto complianceRequestDto = new ComplianceRequestDto()
-            {
-                Id = record.Id,
-                Seq = record.Seq,
-                LastSendDate = record.LastSendDate,
-                AssignTaskName = currentLanguageService.Language == LanguageEnum.En ? record.AssignTaskNameEn : record.AssignTaskNameAr,
-                CreatedOn = record.CreatedOn,
-                AssignedOn = record.AssignedOn,
-                StatusId = record.StatusId,
-                StatusName = currentLanguageService.Language == LanguageEnum.En ? record.Status.ValueEn : record.Status.ValueAr,
-                PassedDays = record.PassedDays,
-                RemainingDays = record.RemainingDays,
-                AssignedSpecialists = record.ComplianceSpecialists?.Select(a => new ComplianceSpecialistDto()
-                {
-                    SpecialistUserEmail = a.SpecialistUserEmail,
-                    SpecialistUserId = a.SpecialistUserId,
-                    SpecialistUserName = a.SpecialistUserName
-                })?.ToList(),
-                CompliancePlans = record.ComplianceDetails?.Where(s => s.IsDeleted == false).OrderByDescending(s => s.Seq).Select(s => new CompliancePlanDto()
-                {
-                    Id = s.Id,
-                    Seq = s.Seq,
-                    ActivityId = s.ActivityId,
-                    ComplianceRequestId = s.ComplianceRequestId,
+            Id = r.Id,
+            Seq = r.Seq,
+            CreatedOn = r.CreatedOn,
+            StatusName = r.Status.ValueAr, // or .ValueEn
+            VisitTypeName = r.ComplianceDetails.OrderByDescending(d => d.VisitDate).FirstOrDefault().VisitTypeName,
+            LicenseeName = r.ComplianceDetails.OrderByDescending(d => d.VisitDate).FirstOrDefault().LicensedEntityName,
+            LocationName = r.ComplianceDetails.OrderByDescending(d => d.VisitDate).FirstOrDefault().LocationName,
+            VisitDate = r.ComplianceDetails.OrderByDescending(d => d.VisitDate).FirstOrDefault().VisitDate,
+            VisitReferenceNumber = r.ComplianceDetails.OrderByDescending(d => d.VisitDate).FirstOrDefault().VisitReferenceNumber,
+            // Add any other properties needed for the UI
+        })
+        .ToListAsync();
 
-                    ActivityName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.ActivityId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.ActivityId)?.ValueAr,
-
-                    LicensedEntityId = s.LicensedEntityId,
-                    LicensedEntityName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.LicensedEntityId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.LicensedEntityId)?.ValueAr,
-
-
-                    LocationId = s.LocationId,
-                    LocationName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.LocationId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.LocationId)?.ValueAr,
-
-                    PlantNameId = s.PlantNameId,
-                    PlantName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.PlantNameId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.PlantNameId)?.ValueAr,
-
-                    QuarterPlannedForVisitId = s.QuarterPlannedForVisitId,
-                    QuarterPlannedForVisitName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.QuarterPlannedForVisitId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.QuarterPlannedForVisitId)?.ValueAr,
-                    QuarterPlannedForVisitNameEn = categoryLookupValue.FirstOrDefault(a => a.Id == s.QuarterPlannedForVisitId)?.ValueEn,
-
-                    VisitTypeId = s.VisitTypeId,
-                    VisitTypeName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitTypeId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitTypeId)?.ValueAr,
-
-                    VisitDate = s.VisitDate,
-                    VisitReferenceNumber = s.VisitReferenceNumber,
-                    DesignedCapacity = s.DesignedCapacity,
-
-                    VisitStatusId = s.VisitStatusId,
-                    VisitStatusName = currentLanguageService.Language == LanguageEnum.En ? categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitStatusId)?.ValueEn : categoryLookupValue.FirstOrDefault(a => a.Id == s.VisitStatusId)?.ValueAr,
-
-                    ModifiedOn = s.ModifiedOn,
-                    CreatedOn = s.CreatedOn,
-
-                    LocationVisit = s.LocationVisit,
-
-                    ScheduledDate = s.ScheduledDate,
-                    CancelledAt = s.CancelledAt,
-                    CancellationReason = s.CancellationReason,
-                    RescheduleReason = s.RescheduleReason,
-
-                    VisitStatusHistory = s.VisitStatusHistory?.Select(a => new VisitStatusHistory
-                    {
-                        Id = a.Id,
-                        ActionAt = a.ActionAt,
-                        ActionByUserId = a.ActionByUserId,
-                        ActionReason = a.ActionReason,
-                        ComplianceDetailsId = a.ComplianceDetailsId,
-                        NewStatus = a.NewStatus,
-                        OldStatus = a.OldStatus,
-                        RequestedNewDate = a.RequestedNewDate
-                    }).ToList(),
-                    VisitDocuments = s.VisitDocuments?.Select(a => new VisitDocument
-                    {
-                        Id = a.Id,
-                        ComplianceDetailsID = a.ComplianceDetailsID,
-                        Name = a.Name,
-                        Type = a.Type,
-                        Url = a.Url,
-                        Path = a.Path
-                    }).ToList(),
-
-                }).ToList(),
-            };
-            return ResponseResult<ComplianceRequestDto>.Success(complianceRequestDto);
-        }
-
-        return null;
-    }
+    return Ok(list);
+}
