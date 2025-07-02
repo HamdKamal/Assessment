@@ -1,0 +1,216 @@
+// check for non Submission Of Documents
+
+recurringJobManager.AddOrUpdate(
+    "EscalateNonSubmission",
+    () => EscalationJobs.EscalateNonSubmissionOfDocumentsAsync(),
+    "0 8 * * *" // Every day at 8 AM
+);
+
+Public async Task EscalateNonSubmissionOfDocumentsAsync()
+    {
+        // Find visits where documents are not submitted AND deadline passed (>3 working days)
+        var overdueVisits = await _visitService.GetVisitsWithMissingDocuments(3);
+
+        foreach (var visit in overdueVisits)
+        {
+            // Email
+            var emailSubject = "Non-Submission of Documents";
+            var emailBody = $@"
+Dear {visit.ComplianceManagerName},
+
+The licensed entity {visit.LicenseeName} has not submitted the required documents for the compliance visit scheduled on {visit.VisitDate:yyyy-MM-dd}.
+Please follow up with the entity immediately.
+
+Details:
+• Visit ID: {visit.VisitId}
+• Visit Date: {visit.VisitDate:yyyy-MM-dd}
+• Licensee name: {visit.LicenseeName}
+• Visit Type: {visit.VisitType}
+• Visit Location: {visit.VisitLocation}
+• Designed Capacity: {visit.DesignedCapacity} (m3/day)
+[Link to request visit]
+
+Best regards,
+The Saudi Water Authority
+";
+            await _notificationService.SendEmailAsync(visit.ComplianceManagerEmail, emailSubject, emailBody);
+
+            // SMS
+            var smsBody = $"Entity {visit.LicenseeName} failed to upload required documents for visit on {visit.VisitDate:yyyy-MM-dd}. Please follow up. - The Saudi Water Authority";
+            await _notificationService.SendSmsAsync(visit.ComplianceManagerPhone, smsBody);
+        }
+    }
+}
+
+ Task<List<VisitMissingDocumentsInfo>> GetVisitsWithMissingDocuments(int overdueWorkingDays);
+
+public async Task<List<VisitMissingDocumentsInfo>> GetVisitsWithMissingDocuments(int overdueWorkingDays)
+    {
+        // Calculate threshold date (subtract working days)
+        DateTime deadlineDate = GetWorkingDayBefore(DateTime.Now, overdueWorkingDays);
+
+        // Find all scheduled visits where documents are missing AND the scheduled/assigned date is past the threshold
+        var overdueVisits = await _db.ComplianceDetails
+            .Include(v => v.ComplianceRequest)
+            .ThenInclude(r => r.Status)
+            .Include(v => v.VisitDocuments)
+            .Where(v =>
+                v.ScheduledDate != null &&
+                v.ScheduledDate <= deadlineDate &&
+                (v.VisitDocuments == null || !v.VisitDocuments.Any()) &&
+                !v.IsDeleted // Optional: Only active
+            )
+            .Select(v => new VisitMissingDocumentsInfo
+            {
+                VisitId = v.Id,
+                VisitDate = v.VisitDate ?? v.ScheduledDate.Value,
+                LicenseeName = v.LicensedEntityName,
+                VisitType = v.VisitTypeName,
+                VisitLocation = v.LocationName,
+                DesignedCapacity = v.DesignedCapacity,
+                // Assume ComplianceManager info is in ComplianceRequest or join via user management
+                ComplianceManagerName = v.ComplianceRequest.AssignedComplianceManagerName,
+                ComplianceManagerEmail = v.ComplianceRequest.AssignedComplianceManagerEmail,
+                ComplianceManagerPhone = v.ComplianceRequest.AssignedComplianceManagerPhone,
+            })
+            .ToListAsync();
+
+        return overdueVisits;
+    }
+
+    // Helper: Subtract X working days from a date (excluding weekends)
+    private DateTime GetWorkingDayBefore(DateTime fromDate, int workingDays)
+    {
+        DateTime date = fromDate.Date;
+        int daysSubtracted = 0;
+        while (daysSubtracted < workingDays)
+        {
+            date = date.AddDays(-1);
+            if (date.DayOfWeek != DayOfWeek.Friday && date.DayOfWeek != DayOfWeek.Saturday)
+                daysSubtracted++;
+        }
+        return date;
+    }
+}
+
+////
+
+
+/// Escalation of Pending Requests /// 
+
+public class ExtensionEscalationJobs
+{
+    private readonly IExtensionRequestService _extensionRequestService;
+    private readonly INotificationService _notificationService;
+
+    public ExtensionEscalationJobs(
+        IExtensionRequestService extensionRequestService,
+        INotificationService notificationService)
+    {
+        _extensionRequestService = extensionRequestService;
+        _notificationService = notificationService;
+    }
+
+    public async Task EscalatePendingExtensionRequestsAsync()
+    {
+        // Get all extension requests pending for >1 working day, and not yet escalated
+        var overdueRequests = await _extensionRequestService.GetPendingExtensionRequests(overdueBusinessDays: 1);
+
+        foreach (var req in overdueRequests)
+        {
+            // Escalate to Compliance Manager (if >5 days requested), or notify Specialist
+            if (req.TotalDaysRequested > 5 && !req.IsEscalated)
+            {
+                // Mark as escalated
+                await _extensionRequestService.MarkAsEscalated(req.Id);
+
+                // Notify manager (EMAIL/SMS)
+                await _notificationService.SendEmailAsync(
+                    req.ComplianceManagerEmail,
+                    "Extension Request Pending Review",
+                    $"Extension request for {req.LicenseeName} ({req.VisitId}) requires your approval."
+                );
+                await _notificationService.SendSmsAsync(
+                    req.ComplianceManagerPhone,
+                    $"Extension request for {req.LicenseeName} needs your approval."
+                );
+            }
+            else if (!req.IsEscalated)
+            {
+                // Reminder to Specialist (if not escalated and still pending)
+                await _notificationService.SendEmailAsync(
+                    req.ComplianceSpecialistEmail,
+                    "Reminder: Extension Request Pending",
+                    $"Extension request for {req.LicenseeName} ({req.VisitId}) is still pending. Please review."
+                );
+            }
+        }
+    }
+}
+
+recurringJobManager.AddOrUpdate(
+    "EscalateExtensionRequests",
+    () => extensionEscalationJobs.EscalatePendingExtensionRequestsAsync(),
+    "0 8 * * *" // Every day at 8am
+);
+
+
+public async Task<List<OverdueExtensionRequestDto>> GetPendingExtensionRequests(int overdueBusinessDays)
+{
+    DateTime deadline = GetWorkingDayBefore(DateTime.Now, overdueBusinessDays);
+
+    var requests = await _db.ExtensionRequests
+        .Include(x => x.ComplianceSpecialist)
+        .Include(x => x.ComplianceManager)
+        .Where(x =>
+            x.Status == ExtensionRequestStatus.Pending &&
+            x.CreatedOn <= deadline
+            // Add further conditions if you only want un-escalated requests
+        )
+        .Select(x => new OverdueExtensionRequestDto
+        {
+            Id = x.Id,
+            VisitId = x.VisitId,
+            LicenseeName = x.LicenseeName,
+            TotalDaysRequested = x.TotalDaysRequested,
+            ComplianceSpecialistEmail = x.ComplianceSpecialist.Email,
+            ComplianceManagerEmail = x.ComplianceManager.Email,
+            ComplianceManagerPhone = x.ComplianceManager.Phone,
+            IsEscalated = x.IsEscalated
+        })
+        .ToListAsync();
+
+    return requests;
+}
+
+
+///////////////////////// 
+
+public async Task CheckAndEscalateEvidenceSubmission(Guid planId)
+    {
+        if (!await _planService.IsEvidenceSubmitted(planId))
+        {
+            await _planService.EscalateIfNoEvidence(planId);
+            // E.g., notify compliance manager
+        }
+    }
+
+
+BackgroundJob.Schedule<CorrectivePlanJobs>(
+    job => job.CheckAndEscalateEvidenceSubmission(planId),
+    planDeadline - DateTime.UtcNow);
+
+public async Task CheckAndEscalateEvidenceSubmission(Guid planId)
+{
+    var plan = await _db.CorrectiveActionPlans.FindAsync(planId);
+    if (plan.Status == "EvidenceSubmitted")
+    {
+        // Evidence already in, skip escalation.
+        return;
+    }
+
+    // Evidence not submitted — escalate!
+    await _notificationService.NotifyComplianceManagerOfMissingEvidence(plan);
+    plan.Status = "Overdue";
+    await _db.SaveChangesAsync();
+}
