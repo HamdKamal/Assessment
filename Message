@@ -1,0 +1,46 @@
+@model string
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>رسالة شكر</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8f0fa;
+            direction: rtl;
+        }
+        .container {
+            background-color: #ffffff;
+            max-width: 650px;
+            margin: 50px auto;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 97, 174, 0.25);
+            border-top: 6px solid #004c97;
+        }
+        .logo { text-align: center; margin-bottom: 25px; }
+        .logo img { width: 130px; }
+        .header { text-align: center; color: #004c97; font-size: 22px; font-weight: bold; margin-bottom: 20px; }
+        .message { font-size: 18px; color: #222; text-align: center; font-weight: 500; line-height: 2; }
+        .highlight { color: #0072c6; font-weight: bold; }
+        .footer { margin-top: 35px; text-align: center; color: #666; font-size: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Saudi_Water_Partnership_Company_Logo.svg/512px-Saudi_Water_Partnership_Company_Logo.svg.png" alt="شعار الهيئة">
+        </div>
+        <div class="header">عزيزي/ـتي المشارك/ـة</div>
+        <div class="message">
+            نشكر لكم مشاركتكم في <span class="highlight">جائزة الهيئة للتميز</span>.<br>
+            <span class="highlight">تمنياتنا لكم بالتوفيق</span>، كما نتطلع معكم لتحقيق <span class="highlight">أعلى مستويات التميز المؤسسي</span>.
+        </div>
+        <div class="footer">جائزة الهيئة للتميز</div>
+    </div>
+</body>
+</html>
