@@ -1,0 +1,220 @@
+public interface IComplianceRequestRepository
+{
+    Task<ComplianceRequest> GetLatestComplianceRequest();
+    Task<List<AttachmentDto>> GetVisitAttachments(List<long> visitIds);
+    Task<List<LookupValue>> GetLookupValues();
+}
+
+public class ComplianceRequestRepository : IComplianceRequestRepository
+{
+    private readonly ApplicationDbContext _context;
+
+    public ComplianceRequestRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<ComplianceRequest> GetLatestComplianceRequest()
+    {
+        return await _context.ComplianceRequest
+            .Include(s => s.ComplianceSpecialists)
+            .Include(s => s.ComplianceDetails)
+            .Include(s => s.Status)
+            .OrderByDescending(s => s.CreatedOn)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<List<AttachmentDto>> GetVisitAttachments(List<long> visitIds)
+    {
+        return await _context.Attachments
+            .Where(s => s.EntityName == AttachmentEntityEnum.VisitAttachment
+                     && visitIds.Contains(s.EntityId)
+                     && s.AttachmentTypeId == (long)AttachmentTypeEnum.VisitAttachment)
+            .Select(a => new AttachmentDto
+            {
+                AttachmentId = a.Id,
+                EntityId = a.EntityId,
+                AttachmentGuid = a.AttachmentGuid,
+                AttachmentName = a.AttachmentName,
+                EntityName = a.EntityName,
+                AttachmentType = (AttachmentTypeEnum)a.AttachmentTypeId,
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<LookupValue>> GetLookupValues()
+    {
+        return await _context.LookupValue.ToListAsync();
+    }
+}
+
+
+public class ComplianceRequestService
+{
+    private readonly IComplianceRequestRepository _repository;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly ICurrentLanguageService _currentLanguageService;
+
+    public ComplianceRequestService(
+        IComplianceRequestRepository repository,
+        ICurrentUserService currentUserService,
+        ICurrentLanguageService currentLanguageService)
+    {
+        _repository = repository;
+        _currentUserService = currentUserService;
+        _currentLanguageService = currentLanguageService;
+    }
+
+    public async Task<ResponseResult<ComplianceRequestDto>> GetComplianceRequest(
+        ComplianceRequestFilterDto? filter, bool isEmail = false)
+    {
+        // ✅ 1. Get latest compliance request
+        var record = await _repository.GetLatestComplianceRequest()
+            ?? throw new NotFoundException("ComplianceRequest", "Not found");
+
+        if (DateTime.Now.Subtract(record.CreatedOn).Days > 365)
+            throw new NotFoundException("ComplianceRequest", "Yearly Compliance Request not found \r\n لم يتم العثور على طلب الامتثال السنوي");
+
+        // ✅ 2. Security check
+        if (!(isEmail || (_currentUserService != null &&
+            (record.ComplianceSpecialists.Any(s => s.SpecialistUserName == _currentUserService.User.UserName) ||
+             _currentUserService.User.Role.Contains(RoleEnum.PerformanceMonitoringManager) ||
+             _currentUserService.User.Role.Contains(RoleEnum.ComplianceManager)))))
+        {
+            return null;
+        }
+
+        // ✅ 3. Filter ComplianceDetails
+        var complianceDetailsQuery = record.ComplianceDetails
+            .Where(s => s.IsDeleted == false)
+            .AsQueryable();
+
+        if (filter != null)
+        {
+            if (filter.VisitTypeID.HasValue)
+                complianceDetailsQuery = complianceDetailsQuery.Where(s => s.VisitTypeId == filter.VisitTypeID.Value);
+
+            if (filter.VisitStatusID.HasValue)
+                complianceDetailsQuery = complianceDetailsQuery.Where(s => s.VisitStatusId == filter.VisitStatusID.Value);
+
+            if (filter.LicenseeEntityID.HasValue)
+                complianceDetailsQuery = complianceDetailsQuery.Where(s => s.LicensedEntityId == filter.LicenseeEntityID.Value);
+
+            if (!string.IsNullOrWhiteSpace(filter.VisitReferanceNumber))
+                complianceDetailsQuery = complianceDetailsQuery.Where(s => s.VisitReferenceNumber == filter.VisitReferanceNumber);
+
+            if (filter.VisitDate.HasValue)
+                complianceDetailsQuery = complianceDetailsQuery.Where(s => s.VisitDate.HasValue &&
+                                                                           s.VisitDate.Value.Date == filter.VisitDate.Value.Date);
+        }
+
+        var complianceDetails = complianceDetailsQuery.OrderByDescending(s => s.Seq).ToList();
+        var visitIds = complianceDetails.Select(s => s.Id).ToList();
+
+        // ✅ 4. Fetch Attachments & Lookup Values
+        var visitDocuments = await _repository.GetVisitAttachments(visitIds);
+        var categoryLookupValue = (await _repository.GetLookupValues())
+            .ToDictionary(k => k.Id, v => v);
+
+        // ✅ 5. Build DTO
+        var complianceRequestDto = BuildComplianceRequestDto(record, complianceDetails, visitDocuments, categoryLookupValue);
+
+        return ResponseResult<ComplianceRequestDto>.Success(complianceRequestDto);
+    }
+
+    private ComplianceRequestDto BuildComplianceRequestDto(
+        ComplianceRequest record,
+        List<ComplianceDetail> complianceDetails,
+        List<AttachmentDto> visitDocuments,
+        Dictionary<long, LookupValue> lookupValues)
+    {
+        return new ComplianceRequestDto
+        {
+            Id = record.Id,
+            Seq = record.Seq,
+            LastSendDate = record.LastSendDate,
+            AssignTaskName = _currentLanguageService.Language == LanguageEnum.En
+                ? record.AssignTaskNameEn
+                : record.AssignTaskNameAr,
+            CreatedOn = record.CreatedOn,
+            AssignedOn = record.AssignedOn,
+            StatusId = record.StatusId,
+            StatusName = _currentLanguageService.Language == LanguageEnum.En
+                ? record.Status.ValueEn
+                : record.Status.ValueAr,
+            PassedDays = record.PassedDays,
+            RemainingDays = record.RemainingDays,
+            AssignedSpecialists = record.ComplianceSpecialists?.Select(a => new ComplianceSpecialistDto
+            {
+                SpecialistUserEmail = a.SpecialistUserEmail,
+                SpecialistUserId = a.SpecialistUserId,
+                SpecialistUserName = a.SpecialistUserName
+            }).ToList(),
+
+            CompliancePlans = complianceDetails.Select(s => new CompliancePlanDto
+            {
+                Id = s.Id,
+                Seq = s.Seq,
+                ActivityId = s.ActivityId,
+                ComplianceRequestId = s.ComplianceRequestId,
+
+                ActivityName = GetLookupValueName(lookupValues, s.ActivityId),
+                LicensedEntityId = s.LicensedEntityId,
+                LicensedEntityName = GetLookupValueName(lookupValues, s.LicensedEntityId),
+
+                LocationId = s.LocationId,
+                LocationName = GetLookupValueName(lookupValues, s.LocationId),
+                PlantNameId = s.PlantNameId,
+                PlantName = GetLookupValueName(lookupValues, s.PlantNameId),
+
+                QuarterPlannedForVisitId = s.QuarterPlannedForVisitId,
+                QuarterPlannedForVisitName = GetLookupValueName(lookupValues, s.QuarterPlannedForVisitId),
+                QuarterPlannedForVisitNameEn = lookupValues.ContainsKey(s.QuarterPlannedForVisitId ?? 0)
+                    ? lookupValues[s.QuarterPlannedForVisitId.Value].ValueEn
+                    : null,
+
+                VisitTypeId = s.VisitTypeId,
+                VisitTypeName = GetLookupValueName(lookupValues, s.VisitTypeId),
+
+                VisitDate = s.VisitDate,
+                VisitReferenceNumber = s.VisitReferenceNumber,
+                DesignedCapacity = s.DesignedCapacity,
+
+                VisitStatusId = s.VisitStatusId,
+                VisitStatusName = GetLookupValueName(lookupValues, s.VisitStatusId),
+
+                ModifiedOn = s.ModifiedOn,
+                CreatedOn = s.CreatedOn,
+                LocationVisit = s.LocationVisit,
+                ScheduledDate = s.ScheduledDate,
+                CancelledAt = s.CancelledAt,
+                CancellationReason = s.CancellationReason,
+                RescheduleReason = s.RescheduleReason,
+
+                VisitStatusHistory = s.VisitStatusHistory?.Select(a => new VisitStatusHistory
+                {
+                    Id = a.Id,
+                    ActionAt = a.ActionAt,
+                    ActionByUserId = a.ActionByUserId,
+                    ActionReason = a.ActionReason,
+                    ComplianceDetailsId = a.ComplianceDetailsId,
+                    NewStatus = a.NewStatus,
+                    OldStatus = a.OldStatus,
+                    RequestedNewDate = a.RequestedNewDate
+                }).ToList(),
+
+                VisitDocuments = visitDocuments.Where(a => a.EntityId == s.Id).ToList()
+            }).ToList()
+        };
+    }
+
+    private string GetLookupValueName(Dictionary<long, LookupValue> lookupValues, long? id)
+    {
+        if (!id.HasValue || !lookupValues.ContainsKey(id.Value))
+            return null;
+
+        return _currentLanguageService.Language == LanguageEnum.En
+            ? lookupValues[id.Value].ValueEn
+            : lookupValues[id.Value].ValueAr;
+    }
+}
